@@ -6,7 +6,10 @@ require github.com/golang-jwt/jwt v3.2.2+incompatible
 
 require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/klauspost/compress v1.13.5 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
@@ -29,4 +32,6 @@ require (
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
+	gorm.io/driver/mysql v1.3.2 // indirect
+	gorm.io/gorm v1.23.1 // indirect
 )
