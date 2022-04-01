@@ -1,6 +1,9 @@
 package repository
 
-import "github.com/artomsopun/clendry/clendry-api/internal/domain"
+import (
+	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+	"gorm.io/gorm"
+)
 
 type Users interface {
 	GetAll() ([]domain.User, error)
@@ -37,4 +40,15 @@ type Messages interface {
 	GetAddresseeMessagesByUserID(userID, addresseeID uint) ([]domain.Message, error)
 	Create(message domain.Message) error
 	Delete(userID, messageID uint) error
+}
+
+type Repositories struct {
+	Users    Users
+	Sessions Sessions
+}
+
+func NewRepositories(db *gorm.DB) *Repositories {
+	return &Repositories{
+		Users: NewUsersRepo(db),
+	}
 }

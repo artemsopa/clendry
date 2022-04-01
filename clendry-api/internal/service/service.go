@@ -3,6 +3,10 @@ package service
 import (
 	"context"
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+	"github.com/artomsopun/clendry/clendry-api/internal/repository"
+	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
+	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
+	"github.com/artomsopun/clendry/clendry-api/pkg/storage"
 	"github.com/google/uuid"
 	"time"
 )
@@ -21,8 +25,8 @@ type UserInputSigUp struct {
 }
 
 type UserInputSigIn struct {
-	NickEmail string
-	Password  string
+	Login    string
+	Password string
 }
 
 type PasswordConfirm struct {
@@ -32,8 +36,8 @@ type PasswordConfirm struct {
 }
 
 type Passwords struct {
-	NewPassword  string
-	Confirmation string
+	Password string
+	Confirm  string
 }
 
 type Tokens struct {
@@ -179,4 +183,25 @@ type Files interface {
 	UploadObject(ctx context.Context, file File) (string, error)
 	RemoveObject(ctx context.Context, object string) error
 	RemoveFile(filename string)
+}
+
+type Services struct {
+	Auths Auths
+}
+
+type Deps struct {
+	Repos           *repository.Repositories
+	Hasher          hash.PasswordHasher
+	TokenManager    auth.TokenManager
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
+	StorageProvider storage.Provider
+}
+
+func NewServices(deps Deps) *Services {
+	authsService := NewAuthsService(deps.Repos.Users, deps.Repos.Sessions, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
+
+	return &Services{
+		Auths: authsService,
+	}
 }
