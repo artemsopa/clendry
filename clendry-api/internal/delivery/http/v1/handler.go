@@ -3,7 +3,7 @@ package v1
 import (
 	"github.com/artomsopun/clendry/clendry-api/internal/service"
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
