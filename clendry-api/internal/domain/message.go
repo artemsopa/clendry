@@ -9,6 +9,7 @@ type Message struct {
 	ID        uuid.UUID `gorm:"primaryKey"`
 	Text      string    `gorm:"column:text"`
 	Type      string    `gorm:"column:type"`
+	Forwarded bool      `gorm:"column:forwarded"`
 	Hided     bool      `gorm:"column:hided"`
 	CreatedAt time.Time `gorm:"column:created_at"`
 	UserID    uuid.UUID `gorm:"column:user_id"`
