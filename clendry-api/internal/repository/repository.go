@@ -49,6 +49,7 @@ type Repositories struct {
 
 func NewRepositories(db *gorm.DB) *Repositories {
 	return &Repositories{
-		Users: NewUsersRepo(db),
+		Users:    NewUsersRepo(db),
+		Sessions: NewSessionsRepo(db),
 	}
 }

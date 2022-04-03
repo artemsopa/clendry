@@ -6,7 +6,7 @@ import (
 	"github.com/artomsopun/clendry/clendry-api/internal/repository"
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
 	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
-	"github.com/google/uuid"
+	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"time"
 )
 
@@ -43,7 +43,6 @@ func (s *AuthService) SignUp(input UserInputSigUp) error {
 	}
 
 	user := domain.User{
-		ID:       uuid.New(),
 		Nick:     input.Nick,
 		Email:    input.Email,
 		Password: passwordHash,
@@ -83,7 +82,7 @@ func (s *AuthService) RefreshTokens(refreshToken Token) (Tokens, error) {
 	return s.createSession(session.UserID)
 }
 
-func (s *AuthService) createSession(userID uuid.UUID) (Tokens, error) {
+func (s *AuthService) createSession(userID types.BinaryUUID) (Tokens, error) {
 	var (
 		res Tokens
 		err error

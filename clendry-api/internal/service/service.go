@@ -7,6 +7,7 @@ import (
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
 	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
 	"github.com/artomsopun/clendry/clendry-api/pkg/storage"
+	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"github.com/google/uuid"
 	"time"
 )
@@ -30,7 +31,7 @@ type UserInputSigIn struct {
 }
 
 type PasswordConfirm struct {
-	UserID      uuid.UUID
+	UserID      types.BinaryUUID
 	OldPassword string
 	Passwords   Passwords
 }
@@ -57,7 +58,7 @@ type File struct {
 	ContentType string
 	Type        domain.FileType
 	CreatedAt   time.Time
-	ForeignID   uuid.UUID
+	ForeignID   types.BinaryUUID
 }
 
 type Message struct {
@@ -72,7 +73,7 @@ type Message struct {
 }
 
 type Chat struct {
-	ID        uuid.UUID
+	ID        types.BinaryUUID
 	Title     string
 	Avatar    string
 	Group     bool
@@ -93,7 +94,7 @@ type ChatItem struct {
 
 type ChatInput struct {
 	Chat    Chat
-	Members []uuid.UUID
+	Members []types.BinaryUUID
 }
 
 type Auths interface {
@@ -103,14 +104,14 @@ type Auths interface {
 }
 
 type Profiles interface {
-	GetProfile(userID uuid.UUID) (UserInfo, error)
+	GetProfile(userID types.BinaryUUID) (UserInfo, error)
 	ChangePassword(confirm PasswordConfirm) error
-	DeleteProfile(userID uuid.UUID) error
+	DeleteProfile(userID types.BinaryUUID) error
 
-	GetAvatar(userID uuid.UUID) (UserInfo, error)
+	GetAvatar(userID types.BinaryUUID) (UserInfo, error)
 	UploadAvatar(ctx context.Context, file File) error
-	ChangeAvatarByFileID(ctx context.Context, fileID uuid.UUID) error
-	DeleteAvatar(ctx context.Context, userID uuid.UUID) error
+	ChangeAvatarByFileID(ctx context.Context, fileID types.BinaryUUID) error
+	DeleteAvatar(ctx context.Context, userID types.BinaryUUID) error
 }
 
 type Users interface {

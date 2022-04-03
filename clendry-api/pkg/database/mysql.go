@@ -22,8 +22,8 @@ func NewDB(user, password, host, port, name string) *gorm.DB {
 	}
 
 	if err := DB.AutoMigrate(
-		&domain.User{}, &domain.Session{}, &domain.FriendRequest{}, &domain.BlockRequest{}, &domain.Message{},
-		&domain.Membership{}, &domain.Chat{}, &domain.File{},
+		&domain.User{}, &domain.Chat{}, &domain.Session{}, &domain.FriendRequest{},
+		&domain.BlockRequest{}, &domain.Membership{},
 	); err != nil {
 		log.Panicln(err)
 	}
