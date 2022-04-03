@@ -19,7 +19,7 @@ type File struct {
 	ID types.BinaryUUID `gorm:"primary_key;default:(UUID_TO_BIN(UUID()))"`
 
 	Title       string    `gorm:"column:title"`
-	Size        string    `gorm:"column:size"`
+	Size        int64     `gorm:"column:size"`
 	Current     bool      `gorm:"column:current"`
 	ContentType string    `gorm:"column:content_type"`
 	Type        FileType  `gorm:"column:type"`

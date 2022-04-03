@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +26,7 @@ func (r *UsersRepo) GetAll() ([]domain.User, error) {
 	return users, nil
 }
 
-func (r *UsersRepo) GetById(userID uint) (domain.User, error) {
+func (r *UsersRepo) GetById(userID types.BinaryUUID) (domain.User, error) {
 	//TODO if block return err
 	user := domain.User{}
 	if err := r.db.First(&user, userID).Error; err != nil {
@@ -55,17 +56,12 @@ func (r *UsersRepo) Create(user domain.User) error {
 	return nil
 }
 
-func (r *UsersRepo) ChangePassword(userID uint, password string) error {
+func (r *UsersRepo) ChangePassword(userID types.BinaryUUID, password string) error {
 	err := r.db.Model(&domain.User{}).Where("id = ?", userID).Update("password", password).Error
 	return err
 }
 
-func (r *UsersRepo) ChangeAvatar(userID uint, url string) error {
-	err := r.db.Model(&domain.User{}).Where("id = ?", userID).Update("avatar", url).Error
-	return err
-}
-
-func (r *UsersRepo) Delete(userID uint) error {
+func (r *UsersRepo) Delete(userID types.BinaryUUID) error {
 	err := r.db.Delete(&domain.User{}, userID).Error
 	return err
 }

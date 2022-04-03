@@ -2,17 +2,17 @@ package repository
 
 import (
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"gorm.io/gorm"
 )
 
 type Users interface {
 	GetAll() ([]domain.User, error)
-	GetById(userID uint) (domain.User, error)
+	GetById(userID types.BinaryUUID) (domain.User, error)
 	GetByCredentials(nickname, password string) (domain.User, error)
 	Create(user domain.User) error
-	ChangePassword(userID uint, password string) error
-	ChangeAvatar(userID uint, url string) error
-	Delete(userID uint) error
+	ChangePassword(userID types.BinaryUUID, password string) error
+	Delete(userID types.BinaryUUID) error
 }
 
 type Sessions interface {
@@ -42,14 +42,38 @@ type Messages interface {
 	Delete(userID, messageID uint) error
 }
 
+type Files interface {
+	GetAllFilesByUserID(userID types.BinaryUUID) ([]domain.File, error)
+	GetFileByUserID(userID, fileID types.BinaryUUID) (domain.File, error)
+
+	GetAvatarByUserID(userID types.BinaryUUID) (domain.File, error)
+	ChangeAvatarByUserID(userID, fileID types.BinaryUUID) error
+	CreateAvatarByUserID(file domain.File) error
+
+	GetAllTypeFilesByUserID(userID types.BinaryUUID, filetype domain.FileType) ([]domain.File, error)
+	Create(file domain.File) error
+	DeleteByID(userID, fileID types.BinaryUUID) error
+
+	/*
+		GetAvatarByChatID(chatID types.BinaryUUID) (domain.File, error)
+		ChangeChatAvatarByMemberID(memberID, chatID types.BinaryUUID) (domain.File, error)
+		CreateChatAvatarByMemberID(memberID, chatID types.BinaryUUID, file domain.File) error
+
+		GetAllFilesByMessageID(messageID types.BinaryUUID) (domain.File, error)
+		CreateFileByMessageID(chatID types.BinaryUUID) (domain.File, error)
+	*/
+}
+
 type Repositories struct {
 	Users    Users
 	Sessions Sessions
+	Files    Files
 }
 
 func NewRepositories(db *gorm.DB) *Repositories {
 	return &Repositories{
 		Users:    NewUsersRepo(db),
 		Sessions: NewSessionsRepo(db),
+		Files:    NewFilesRepo(db),
 	}
 }
