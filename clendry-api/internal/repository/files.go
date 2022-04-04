@@ -67,7 +67,7 @@ func (r *FilesRepo) CreateAvatarByUserID(file domain.File) error {
 
 func (r *FilesRepo) GetAllTypeFilesByUserID(userID types.BinaryUUID, filetype domain.FileType) ([]domain.File, error) {
 	var files []domain.File
-	if err := r.db.Where("user_id = ? AND type AND current = ?", userID, filetype, false).Find(&files).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND type = ? AND current = ?", userID, filetype, false).Find(&files).Error; err != nil {
 		return []domain.File{}, errors.New("files not found")
 	}
 	return files, nil

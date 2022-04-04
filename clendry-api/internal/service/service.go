@@ -52,7 +52,9 @@ type Token struct {
 }
 
 type File struct {
+	ID          types.BinaryUUID
 	Title       string
+	URL         string
 	Size        int64
 	ContentType string
 	Type        domain.FileType
@@ -135,19 +137,15 @@ type Users interface {
 }
 
 type FileStorages interface {
-	GetAllStorageFiles(userID types.BinaryUUID) ([]File, error)
+	GetAllFiles(userID types.BinaryUUID) ([]File, error)
 
-	GetAllImageFiles(userID types.BinaryUUID) ([]File, error)
-	GetAllVideoFiles(userID types.BinaryUUID) ([]File, error)
-	GetAllOtherFiles(userID types.BinaryUUID) ([]File, error)
+	GetAllFilesByType(userID types.BinaryUUID, fileType domain.FileType) ([]File, error)
 
-	GetStorageFile(userID, fileID types.BinaryUUID) (File, error)
+	GetFile(userID, fileID types.BinaryUUID) (File, error)
 
-	UploadImageFile(userID, fileID types.BinaryUUID) error
-	UploadVideoFile(userID, fileID types.BinaryUUID) error
-	UploadOtherFile(userID, fileID types.BinaryUUID) error
+	UploadFile(ctx context.Context, file File) error
 
-	DeleteStorageFile(userID, fileID types.BinaryUUID) error
+	DeleteFile(userID, fileID types.BinaryUUID) error
 }
 
 type Chats interface {
