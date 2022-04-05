@@ -194,7 +194,7 @@ type Services struct {
 type Deps struct {
 	Repos           *repository.Repositories
 	Hasher          hash.PasswordHasher
-	FilesManager    *files.FilesManager
+	FilesManager    files.Files
 	TokenManager    auth.TokenManager
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration

@@ -2,10 +2,10 @@ package v1
 
 import (
 	"errors"
+	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -56,24 +56,19 @@ func (h *Handler) parseAuthHeader(c echo.Context) (string, error) {
 	return h.tokenManager.Parse(headerParts[1])
 }
 
-func getUserId(c echo.Context) (uint, error) {
+func getUserId(c echo.Context) (types.BinaryUUID, error) {
 	return getIdByContext(c, userCtx)
 }
 
-func getIdByContext(c echo.Context, context string) (uint, error) {
+func getIdByContext(c echo.Context, context string) (types.BinaryUUID, error) {
 	idFromCtx := c.Get(context)
 
 	idStr, ok := idFromCtx.(string)
 	if !ok {
-		return 0, errors.New("userCtx is of invalid type")
+		return types.BinaryUUID{}, errors.New("userCtx is of invalid type")
 	}
 
-	idInt, err := strconv.Atoi(idStr)
-	if err != nil {
-		return 0, errors.New("userCtx is of invalid type")
-	}
-
-	id := uint(idInt)
+	id := types.ParseUUID(idStr)
 
 	return id, nil
 }

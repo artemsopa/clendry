@@ -3,18 +3,21 @@ package v1
 import (
 	"github.com/artomsopun/clendry/clendry-api/internal/service"
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
+	"github.com/artomsopun/clendry/clendry-api/pkg/files"
 	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
 	services     *service.Services
 	tokenManager auth.TokenManager
+	filesManager files.Files
 }
 
-func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Handler {
+func NewHandler(services *service.Services, tokenManager auth.TokenManager, filesManager files.Files) *Handler {
 	return &Handler{
 		services:     services,
 		tokenManager: tokenManager,
+		filesManager: filesManager,
 	}
 }
 
