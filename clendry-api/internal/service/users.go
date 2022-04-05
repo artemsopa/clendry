@@ -166,18 +166,8 @@ func (s *UsersService) ConfirmFriendRequest(userID, defID types.BinaryUUID) erro
 	return err
 }
 
-func (s *UsersService) DeleteIncomingRequest(userID, defID types.BinaryUUID) error {
-	err := s.repoFriends.DeleteReq(defID, userID, false)
-	return err
-}
-
-func (s *UsersService) DeleteSentRequest(userID, defID types.BinaryUUID) error {
-	err := s.repoFriends.DeleteReq(userID, defID, false)
-	return err
-}
-
-func (s *UsersService) DeleteConfirmFriendRequest(userID, defID types.BinaryUUID) error {
-	err := s.repoFriends.DeleteReq(userID, defID, true)
+func (s *UsersService) DeleteRequest(userID, defID types.BinaryUUID) error {
+	err := s.repoFriends.DeleteReq(userID, defID)
 	return err
 }
 

@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-func (h *Handler) initUsersRoutes(api *echo.Group) {
+func (h *Handler) initProfilesRoutes(api *echo.Group) {
 	profile := api.Group("/profile", h.checkAuth)
 	{
 		profile.GET("", h.getProfile)

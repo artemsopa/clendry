@@ -135,9 +135,7 @@ type Users interface {
 	SendFriendRequest(userID, defID types.BinaryUUID) error
 	ConfirmFriendRequest(userID, defID types.BinaryUUID) error
 
-	DeleteIncomingRequest(userID, defID types.BinaryUUID) error
-	DeleteSentRequest(userID, defID types.BinaryUUID) error
-	DeleteConfirmFriendRequest(userID, defID types.BinaryUUID) error
+	DeleteRequest(userID, defID types.BinaryUUID) error
 
 	GetAllBlockedUsers(userID types.BinaryUUID) ([]UserInfo, error)
 

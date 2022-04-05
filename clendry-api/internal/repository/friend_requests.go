@@ -30,8 +30,8 @@ func (r *FriendsRequestRepo) CreateUnconfirmed(request domain.FriendRequest) err
 
 func (r *FriendsRequestRepo) UpdateConfirmation(request domain.FriendRequest) error {
 	var friend domain.FriendRequest
-	err := r.db.Where("(user_id = ? AND def_id = ?) OR (user_id = ? AND def_id = ?)",
-		request.UserID, request.DefID, request.DefID, request.UserID).
+	err := r.db.Where("user_id = ? AND def_id = ?",
+		request.DefID, request.UserID).
 		First(&friend).Error
 	if err != nil {
 		return errors.New("request doesn't exist")
@@ -43,9 +43,9 @@ func (r *FriendsRequestRepo) UpdateConfirmation(request domain.FriendRequest) er
 	return err
 }
 
-func (r *FriendsRequestRepo) DeleteReq(userID, defID types.BinaryUUID, status bool) error {
-	err := r.db.Where("(user_id = ? AND def_id = ?) OR (user_id = ? AND def_id = ?) AND status = ?",
-		userID, defID, defID, userID, status).
+func (r *FriendsRequestRepo) DeleteReq(userID, defID types.BinaryUUID) error {
+	err := r.db.Where("(user_id = ? AND def_id = ?) OR (user_id = ? AND def_id = ?)",
+		userID, defID, defID, userID).
 		Delete(&domain.FriendRequest{}).Error
 	return err
 }

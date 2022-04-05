@@ -30,7 +30,7 @@ type Sessions interface {
 type FriendRequests interface {
 	CreateUnconfirmed(request domain.FriendRequest) error
 	UpdateConfirmation(request domain.FriendRequest) error
-	DeleteReq(userID, defID types.BinaryUUID, status bool) error
+	DeleteReq(userID, defID types.BinaryUUID) error
 	IsUserInFriend(userID, defID types.BinaryUUID) bool
 	IsIncomingReq(userID, defID types.BinaryUUID) bool
 	IsSentReq(userID, defID types.BinaryUUID) bool
