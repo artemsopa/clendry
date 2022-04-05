@@ -7,7 +7,14 @@ import (
 )
 
 type Users interface {
-	GetAll() ([]domain.User, error)
+	GetAllWithoutBlocks(userID types.BinaryUUID) ([]domain.User, error)
+
+	GetAllBlockedUsers(userID types.BinaryUUID) ([]domain.User, error)
+	GetAllFriends(userID types.BinaryUUID) ([]domain.User, error)
+	GetAllSentReqs(userID types.BinaryUUID) ([]domain.User, error)
+	GetAllIncomingReqs(userID types.BinaryUUID) ([]domain.User, error)
+
+	GetAll(userID types.BinaryUUID) ([]domain.User, error)
 	GetById(userID types.BinaryUUID) (domain.User, error)
 	GetByCredentials(nickname, password string) (domain.User, error)
 	Create(user domain.User) error
@@ -21,18 +28,19 @@ type Sessions interface {
 }
 
 type FriendRequests interface {
-	GetAllIncomingUnconfirmedByUserID(userID uint) ([]domain.FriendRequest, error)
-	GetAllSentUnconfirmedByUserID(userID uint) ([]domain.FriendRequest, error)
-	GetAllConfirmedByUserID(userID uint) ([]domain.FriendRequest, error)
 	CreateUnconfirmed(request domain.FriendRequest) error
 	UpdateConfirmation(request domain.FriendRequest) error
-	DeleteRequest(userID, addresseeID uint) error
+	DeleteReq(userID, defID types.BinaryUUID, status bool) error
+	IsUserInFriend(userID, defID types.BinaryUUID) bool
+	IsIncomingReq(userID, defID types.BinaryUUID) bool
+	IsSentReq(userID, defID types.BinaryUUID) bool
 }
 
-type Blocks interface {
-	GetAllByUserID(userID uint) ([]domain.BlockRequest, error)
+type BlockRequests interface {
 	Create(block domain.BlockRequest) error
-	Delete(userID, addresseeID uint) error
+	Delete(userID, addresseeID types.BinaryUUID) error
+	IsDefInBlock(userID, defID types.BinaryUUID) bool
+	IsUserInBlock(userID, defID types.BinaryUUID) bool
 }
 
 type Messages interface {
@@ -65,15 +73,19 @@ type Files interface {
 }
 
 type Repositories struct {
-	Users    Users
-	Sessions Sessions
-	Files    Files
+	Users          Users
+	Sessions       Sessions
+	Files          Files
+	BlockRequests  BlockRequests
+	FriendRequests FriendRequests
 }
 
 func NewRepositories(db *gorm.DB) *Repositories {
 	return &Repositories{
-		Users:    NewUsersRepo(db),
-		Sessions: NewSessionsRepo(db),
-		Files:    NewFilesRepo(db),
+		Users:          NewUsersRepo(db),
+		Sessions:       NewSessionsRepo(db),
+		Files:          NewFilesRepo(db),
+		BlockRequests:  NewBlocksRepo(db),
+		FriendRequests: NewFriendsRepo(db),
 	}
 }

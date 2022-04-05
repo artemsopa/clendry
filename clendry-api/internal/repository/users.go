@@ -17,17 +17,80 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	}
 }
 
-func (r *UsersRepo) GetAll() ([]domain.User, error) {
-	//TODO get all without blocks
+func (r *UsersRepo) GetAll(userID types.BinaryUUID) ([]domain.User, error) {
 	var users []domain.User
-	if err := r.db.Find(&users).Error; err != nil {
+	if err := r.db.Where("user_id != ?", userID).Find(&users).Error; err != nil {
+		return []domain.User{}, err
+	}
+	return users, nil
+}
+
+func (r *UsersRepo) GetAllWithoutBlocks(userID types.BinaryUUID) ([]domain.User, error) {
+	var users []domain.User
+	err := r.db.Model(&domain.User{}).Select("users.id, users.nick, users.email").
+		Where("users.id != ?", userID).
+		Joins("left join block_requests AS b on b.user_id = users.id AND b.def_id = users.id").
+		Where("b.user_id != ? AND b.def_id != ?", userID, userID).
+		Scan(&users).Error
+	if err != nil {
+		return []domain.User{}, err
+	}
+	return users, nil
+}
+
+func (r *UsersRepo) GetAllBlockedUsers(userID types.BinaryUUID) ([]domain.User, error) {
+	var users []domain.User
+	err := r.db.Model(&domain.User{}).Select("users.id, users.nick, users.email").
+		//Where("users.id != ?", userID).
+		Joins("left join block_requests AS b on b.user_id = users.id AND b.def_id = users.id").
+		Where("b.user_id = ?", userID).
+		Scan(&users).Error
+	if err != nil {
+		return []domain.User{}, err
+	}
+	return users, nil
+}
+
+func (r *UsersRepo) GetAllFriends(userID types.BinaryUUID) ([]domain.User, error) {
+	var users []domain.User
+	err := r.db.Model(&domain.User{}).Select("users.id, users.nick, users.email").
+		//Where("users.id != ?", userID).
+		Joins("left join friend_requests AS f on f.user_id = users.id AND f.def_id = users.id").
+		Where("(f.user_id = ? OR f.def_id != ?) AND status = ?", userID, userID, true).
+		Scan(&users).Error
+	if err != nil {
+		return []domain.User{}, err
+	}
+	return users, nil
+}
+
+func (r *UsersRepo) GetAllSentReqs(userID types.BinaryUUID) ([]domain.User, error) {
+	var users []domain.User
+	err := r.db.Model(&domain.User{}).Select("users.id, users.nick, users.email").
+		//Where("users.id != ?", userID).
+		Joins("left join friend_requests AS f on f.user_id = users.id AND f.def_id = users.id").
+		Where("f.user_id = ? AND status = ?", userID, false).
+		Scan(&users).Error
+	if err != nil {
+		return []domain.User{}, err
+	}
+	return users, nil
+}
+
+func (r *UsersRepo) GetAllIncomingReqs(userID types.BinaryUUID) ([]domain.User, error) {
+	var users []domain.User
+	err := r.db.Model(&domain.User{}).Select("users.id, users.nick, users.email").
+		//Where("users.id != ?", userID).
+		Joins("left join friend_requests AS f on f.user_id = users.id AND f.def_id = users.id").
+		Where("f.def_id != ? AND status = ?", userID, false).
+		Scan(&users).Error
+	if err != nil {
 		return []domain.User{}, err
 	}
 	return users, nil
 }
 
 func (r *UsersRepo) GetById(userID types.BinaryUUID) (domain.User, error) {
-	//TODO if block return err
 	user := domain.User{}
 	if err := r.db.First(&user, userID).Error; err != nil {
 		return domain.User{}, errors.New("user not found")

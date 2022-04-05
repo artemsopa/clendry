@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"gorm.io/gorm"
 )
 
@@ -16,36 +17,10 @@ func NewFriendsRepo(db *gorm.DB) *FriendsRequestRepo {
 	}
 }
 
-func (r *FriendsRequestRepo) GetAllIncomingUnconfirmedByUserID(userID uint) ([]domain.FriendRequest, error) {
-	var friends []domain.FriendRequest
-	err := r.db.Where("addressee_id = ? AND status = ?", userID, false).Find(&friends).Error
-	if err != nil {
-		return []domain.FriendRequest{}, err
-	}
-	return friends, nil
-}
-
-func (r *FriendsRequestRepo) GetAllSentUnconfirmedByUserID(userID uint) ([]domain.FriendRequest, error) {
-	var friends []domain.FriendRequest
-	err := r.db.Where("user_id = ? AND status = ?", userID, false).Find(&friends).Error
-	if err != nil {
-		return []domain.FriendRequest{}, err
-	}
-	return friends, nil
-}
-
-func (r *FriendsRequestRepo) GetAllConfirmedByUserID(userID uint) ([]domain.FriendRequest, error) {
-	var friends []domain.FriendRequest
-	err := r.db.Where("user_id = ? AND status = ?", userID, true).Find(&friends).Error
-	if err != nil {
-		return []domain.FriendRequest{}, err
-	}
-	return friends, nil
-}
-
 func (r *FriendsRequestRepo) CreateUnconfirmed(request domain.FriendRequest) error {
-	err := r.db.Where("user_id = ? AND def_id = ?",
-		request.UserID, request.DefID).First(&domain.FriendRequest{}).Error
+	err := r.db.Where("(user_id = ? AND def_id = ?) OR (user_id = ? AND def_id = ?)",
+		request.UserID, request.DefID, request.DefID, request.UserID).
+		First(&domain.FriendRequest{}).Error
 	if err == nil {
 		return errors.New("request already created")
 	}
@@ -55,9 +30,10 @@ func (r *FriendsRequestRepo) CreateUnconfirmed(request domain.FriendRequest) err
 
 func (r *FriendsRequestRepo) UpdateConfirmation(request domain.FriendRequest) error {
 	var friend domain.FriendRequest
-	err := r.db.Where("user_id = ? AND def_id = ?",
-		request.UserID, request.DefID).First(&friend).Error
-	if err == nil {
+	err := r.db.Where("(user_id = ? AND def_id = ?) OR (user_id = ? AND def_id = ?)",
+		request.UserID, request.DefID, request.DefID, request.UserID).
+		First(&friend).Error
+	if err != nil {
 		return errors.New("request doesn't exist")
 	}
 	if friend.Status == true {
@@ -67,7 +43,39 @@ func (r *FriendsRequestRepo) UpdateConfirmation(request domain.FriendRequest) er
 	return err
 }
 
-func (r *FriendsRequestRepo) DeleteRequest(userID, addresseeID uint) error {
-	err := r.db.Where("user_id = ? AND def_id = ?", userID, addresseeID).Delete(&domain.FriendRequest{}).Error
+func (r *FriendsRequestRepo) DeleteReq(userID, defID types.BinaryUUID, status bool) error {
+	err := r.db.Where("(user_id = ? AND def_id = ?) OR (user_id = ? AND def_id = ?) AND status = ?",
+		userID, defID, defID, userID, status).
+		Delete(&domain.FriendRequest{}).Error
 	return err
+}
+
+func (r *FriendsRequestRepo) IsUserInFriend(userID, defID types.BinaryUUID) bool {
+	if err := r.db.Where(
+		"((user_id = ? AND def_id = ?) OR (user_id = ? AND def_id = ?)) AND status = ?",
+		userID, defID, defID, userID, true).
+		First(&domain.FriendRequest{}).Error; err != nil {
+		return false
+	}
+	return true
+}
+
+func (r *FriendsRequestRepo) IsSentReq(userID, defID types.BinaryUUID) bool {
+	if err := r.db.Where(
+		"user_id = ? AND def_id = ? AND status = ?",
+		userID, defID, false).
+		First(&domain.FriendRequest{}).Error; err != nil {
+		return false
+	}
+	return true
+}
+
+func (r *FriendsRequestRepo) IsIncomingReq(userID, defID types.BinaryUUID) bool {
+	if err := r.db.Where(
+		"user_id = ? AND def_id = ? AND status = ?",
+		defID, userID, false).
+		First(&domain.FriendRequest{}).Error; err != nil {
+		return false
+	}
+	return true
 }

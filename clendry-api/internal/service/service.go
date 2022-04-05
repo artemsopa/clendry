@@ -13,10 +13,15 @@ import (
 )
 
 type UserInfo struct {
-	ID     types.BinaryUUID
-	Nick   string
-	Email  string
-	Avatar string
+	ID       types.BinaryUUID
+	Nick     string
+	Email    string
+	Avatar   string
+	BlockTo  bool
+	BlockBy  bool
+	Sent     bool
+	Incoming bool
+	Friend   bool
 }
 
 type UserInputSigUp struct {
@@ -120,31 +125,31 @@ type Profiles interface {
 }
 
 type Users interface {
-	GetAllUsers(userID types.BinaryUUID) ([]UserInfo, error)        //without blocks
-	GetUserByID(userID, defID types.BinaryUUID) ([]UserInfo, error) //without blocks
+	GetAllUsers(userID types.BinaryUUID) ([]UserInfo, error)
+	GetUserByID(userID, defID types.BinaryUUID) (UserInfo, error)
 
 	GetAllFriends(userID types.BinaryUUID) ([]UserInfo, error) //status true
 	GetAllIncomingRequests(userID types.BinaryUUID) ([]UserInfo, error)
 	GetAllSentRequests(userID types.BinaryUUID) ([]UserInfo, error)
+
 	SendFriendRequest(userID, defID types.BinaryUUID) error
 	ConfirmFriendRequest(userID, defID types.BinaryUUID) error
+
 	DeleteIncomingRequest(userID, defID types.BinaryUUID) error
 	DeleteSentRequest(userID, defID types.BinaryUUID) error
+	DeleteConfirmFriendRequest(userID, defID types.BinaryUUID) error
 
 	GetAllBlockedUsers(userID types.BinaryUUID) ([]UserInfo, error)
+
 	CreateBlock(userID, defID types.BinaryUUID) error
 	DeleteBlock(userID, defID types.BinaryUUID) error
 }
 
 type FileStorages interface {
 	GetAllFiles(userID types.BinaryUUID) ([]File, error)
-
 	GetAllFilesByType(userID types.BinaryUUID, fileType domain.FileType) ([]File, error)
-
 	GetFile(userID, fileID types.BinaryUUID) (File, error)
-
 	UploadFile(ctx context.Context, file File) error
-
 	DeleteFile(userID, fileID types.BinaryUUID) error
 }
 
@@ -183,6 +188,7 @@ type Chats interface {
 type Services struct {
 	Auths    Auths
 	Profiles Profiles
+	Users    Users
 }
 
 type Deps struct {
@@ -198,9 +204,11 @@ type Deps struct {
 func NewServices(deps Deps) *Services {
 	authsService := NewAuthsService(deps.Repos.Users, deps.Repos.Sessions, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 	profilesService := NewProfilesService(deps.Repos.Users, deps.Repos.Files, deps.FilesManager, deps.Hasher)
+	usersService := NewUsersService(deps.Repos.Users, deps.Repos.Files, deps.Repos.BlockRequests, deps.Repos.FriendRequests, deps.FilesManager)
 
 	return &Services{
 		Auths:    authsService,
 		Profiles: profilesService,
+		Users:    usersService,
 	}
 }
