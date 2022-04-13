@@ -38,10 +38,8 @@
             </div>
 
             <div class="d-flex align-items-center">
-                <b-navbar-toggle target="nav-collapse" class="mr-2 text-primary">
-                <i class="ri-menu-3-line"></i>
-                </b-navbar-toggle>
-                <b-collapse id="nav-collapse" is-nav>
+                <ModeSwitch />
+                <div id="nav-collapse" is-nav>
                     <ul class="navbar-nav ml-auto navbar-list align-items-center">
                     <li class="nav-item nav-icon search-content">
                         <a href="#" class="search-toggle rounded dropdown-toggle" id="dropdownSearch" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -160,7 +158,7 @@
                         </div>
                     </li>
                     </ul>                     
-                </b-collapse> 
+                </div> 
             </div>
         </nav>
     </div>

@@ -3,9 +3,9 @@
         "name": "home",
         "title": "Dashboard",
         "short_title": "Home",
-        "href": "backend/index",
+        "href": "/",
         "link": {
-            "name": ""
+            "name": "/"
         },
         "icon_class": "las la-home iq-arrow-left"
     },
@@ -112,9 +112,9 @@
                 "name": "recent",
                 "title": "Recent",
                 "short_title": "recent",
-                "href": "backend/recent",
+                "href": "/recent",
                 "link": {
-                    "name": "layout.recent"
+                    "name": "recent"
                 },
                 "icon_class": "las la-stopwatch iq-arrow-left"
             },
