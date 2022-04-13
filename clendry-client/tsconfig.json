@@ -3,11 +3,13 @@
     "target": "esnext",
     "module": "esnext",
     "strict": true,
+    "resolveJsonModule": true,
     "jsx": "preserve",
     "moduleResolution": "node",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": true,
     "sourceMap": true,
@@ -33,7 +35,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-  ],
+, "src/directives/sidebar-toggle.ts", "src/config/pluginInit.d.js", "src/plugins/bootstrap-vue.js"  ],
   "exclude": [
     "node_modules"
   ]
