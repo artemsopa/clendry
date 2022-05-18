@@ -5,10 +5,8 @@ go 1.16
 require github.com/golang-jwt/jwt v3.2.2+incompatible
 
 require (
-	github.com/go-ini/ini v1.66.4 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/minio/minio-go/v7 v7.0.23
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.10.1

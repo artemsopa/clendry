@@ -1,15 +1,11 @@
 package v1
 
 import (
-	"bytes"
-	"fmt"
-	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+	"net/http"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/service"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"github.com/labstack/echo/v4"
-	"io"
-	"net/http"
-	"os"
 )
 
 func (h *Handler) initProfilesRoutes(api *echo.Group) {
@@ -17,7 +13,7 @@ func (h *Handler) initProfilesRoutes(api *echo.Group) {
 	{
 		profile.GET("", h.getProfile)
 		profile.PUT("/password", h.changePassword)
-		profile.PUT("/avatar", h.changeAvatar)
+		//profile.PUT("/avatar", h.changeAvatar)
 		profile.DELETE("", h.deleteProfile)
 	}
 }
@@ -79,64 +75,64 @@ func (h *Handler) changePassword(c echo.Context) error {
 
 const maxUploadSize = 5 << 20
 
-var imageTypes = map[string]interface{}{
-	"image/jpeg": nil,
-	"image/jpg":  nil,
-	"image/png":  nil,
-}
+// var imageTypes = map[string]interface{}{
+// 	"image/jpeg": nil,
+// 	"image/jpg":  nil,
+// 	"image/png":  nil,
+// }
 
-func (h *Handler) changeAvatar(c echo.Context) error {
-	userID, err := getUserId(c)
-	if err != nil {
-		return newResponse(c, http.StatusInternalServerError, err.Error())
-	}
-	c.Request().Body = http.MaxBytesReader(c.Response().Writer, c.Request().Body, maxUploadSize)
+// func (h *Handler) changeAvatar(c echo.Context) error {
+// 	userID, err := getUserId(c)
+// 	if err != nil {
+// 		return newResponse(c, http.StatusInternalServerError, err.Error())
+// 	}
+// 	c.Request().Body = http.MaxBytesReader(c.Response().Writer, c.Request().Body, maxUploadSize)
 
-	file, fileHeader, err := c.Request().FormFile("file")
-	if err != nil {
-		return newResponse(c, http.StatusBadRequest, err.Error())
-	}
+// 	file, fileHeader, err := c.Request().FormFile("file")
+// 	if err != nil {
+// 		return newResponse(c, http.StatusBadRequest, err.Error())
+// 	}
 
-	tempFilename := fmt.Sprintf("%d-%s", userID, fileHeader.Filename)
-	defer h.filesManager.RemoveFile(tempFilename)
+// 	tempFilename := fmt.Sprintf("%d-%s", userID, fileHeader.Filename)
+// 	defer h.filesManager.RemoveFile(tempFilename)
 
-	defer file.Close()
+// 	defer file.Close()
 
-	buffer := make([]byte, fileHeader.Size)
-	if _, err := file.Read(buffer); err != nil {
-		return newResponse(c, http.StatusBadRequest, err.Error())
-	}
+// 	buffer := make([]byte, fileHeader.Size)
+// 	if _, err := file.Read(buffer); err != nil {
+// 		return newResponse(c, http.StatusBadRequest, err.Error())
+// 	}
 
-	contentType := http.DetectContentType(buffer)
-	// Validate File Type
-	if _, ex := imageTypes[contentType]; !ex {
-		return newResponse(c, http.StatusBadRequest, "file type is not supported")
-	}
+// 	contentType := http.DetectContentType(buffer)
+// 	// Validate File Type
+// 	if _, ex := imageTypes[contentType]; !ex {
+// 		return newResponse(c, http.StatusBadRequest, "file type is not supported")
+// 	}
 
-	f, err := os.OpenFile(tempFilename, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0o666)
-	if err != nil {
-		return newResponse(c, http.StatusInternalServerError, "failed to create temp file")
-	}
+// 	f, err := os.OpenFile(tempFilename, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0o666)
+// 	if err != nil {
+// 		return newResponse(c, http.StatusInternalServerError, "failed to create temp file")
+// 	}
 
-	defer f.Close()
+// 	defer f.Close()
 
-	if _, err := io.Copy(f, bytes.NewReader(buffer)); err != nil {
-		return newResponse(c, http.StatusInternalServerError, "failed to write chunk to temp file")
-	}
+// 	if _, err := io.Copy(f, bytes.NewReader(buffer)); err != nil {
+// 		return newResponse(c, http.StatusInternalServerError, "failed to write chunk to temp file")
+// 	}
 
-	err = h.services.Profiles.UploadAvatar(c.Request().Context(), service.File{
-		Title:       tempFilename,
-		Size:        fileHeader.Size,
-		ContentType: contentType,
-		Type:        domain.Image,
-		ForeignID:   userID,
-	})
-	if err != nil {
-		return newResponse(c, http.StatusInternalServerError, err.Error())
-	}
+// 	err = h.services.Profiles.UploadAvatar(c.Request().Context(), service.File{
+// 		Title:       tempFilename,
+// 		Size:        fileHeader.Size,
+// 		ContentType: contentType,
+// 		Type:        domain.Image,
+// 		ForeignID:   userID,
+// 	})
+// 	if err != nil {
+// 		return newResponse(c, http.StatusInternalServerError, err.Error())
+// 	}
 
-	return c.JSON(http.StatusOK, "avatar changed")
-}
+// 	return c.JSON(http.StatusOK, "avatar changed")
+// }
 
 func (h *Handler) deleteProfile(c echo.Context) error {
 	userID, err := getUserId(c)

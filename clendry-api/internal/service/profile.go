@@ -3,12 +3,11 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/repository"
 	"github.com/artomsopun/clendry/clendry-api/pkg/files"
 	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
-	"time"
 )
 
 type ProfilesService struct {
@@ -33,6 +32,9 @@ func (s *ProfilesService) GetProfile(userID types.BinaryUUID) (UserInfo, error) 
 		return UserInfo{}, err
 	}
 	file, err := s.repoFiles.GetAvatarByUserID(userID)
+	if err != nil {
+		return UserInfo{}, err
+	}
 	return UserInfo{
 		ID:     user.ID,
 		Nick:   user.Nick,
@@ -70,21 +72,22 @@ func (s *ProfilesService) DeleteProfile(userID types.BinaryUUID) error {
 }
 
 func (s *ProfilesService) UploadAvatar(ctx context.Context, file File) error {
-	fileName, err := s.files.UploadObject(ctx, users, file)
-	if err != nil {
-		return err
-	}
+	// fileName, err := s.files.UploadObject(ctx, users, file)
+	// if err != nil {
+	// 	return err
+	// }
 
-	err = s.repoFiles.CreateAvatarByUserID(domain.File{
-		Title:       fileName,
-		Size:        file.Size,
-		Current:     true,
-		ContentType: file.ContentType,
-		Type:        file.Type,
-		CreatedAt:   time.Now(),
-		UserID:      file.ForeignID,
-	})
-	return err
+	// err = s.repoFiles.CreateAvatarByUserID(domain.File{
+	// 	Title:       fileName,
+	// 	Size:        file.Size,
+	// 	Current:     true,
+	// 	ContentType: file.ContentType,
+	// 	Type:        file.Type,
+	// 	CreatedAt:   time.Now(),
+	// 	UserID:      file.ForeignID,
+	// })
+	// return err
+	return nil
 }
 
 func (s *ProfilesService) ChangeAvatarByFileID(userID, fileID types.BinaryUUID) error {

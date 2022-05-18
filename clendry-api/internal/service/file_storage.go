@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
 	"github.com/artomsopun/clendry/clendry-api/internal/repository"
 	"github.com/artomsopun/clendry/clendry-api/pkg/files"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
-	"time"
 )
 
 type FilesService struct {
@@ -85,7 +86,16 @@ func (s *FilesService) GetFile(userID, fileID types.BinaryUUID) (File, error) {
 }
 
 func (s *FilesService) UploadFile(ctx context.Context, file File) error {
-	title, err := s.files.UploadObject(ctx, users, file)
+	title, err := s.files.UploadObject(ctx, users, files.File{
+		Title:       file.Title,
+		URL:         file.URL,
+		Size:        file.Size,
+		ContentType: file.ContentType,
+		Type:        file.Type,
+	})
+	if err != nil {
+		return err
+	}
 	err = s.repoFiles.Create(domain.File{
 		Title:       title,
 		Size:        file.Size,

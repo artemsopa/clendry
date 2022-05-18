@@ -3,14 +3,14 @@ package files
 import (
 	"context"
 	"fmt"
-	"github.com/artomsopun/clendry/clendry-api/internal/domain"
-	"github.com/artomsopun/clendry/clendry-api/internal/service"
-	"github.com/artomsopun/clendry/clendry-api/pkg/logger"
-	"github.com/artomsopun/clendry/clendry-api/pkg/storage"
-	"github.com/google/uuid"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/artomsopun/clendry/clendry-api/internal/domain"
+	"github.com/artomsopun/clendry/clendry-api/pkg/logger"
+	"github.com/artomsopun/clendry/clendry-api/pkg/storage"
+	"github.com/google/uuid"
 )
 
 const (
@@ -40,7 +40,7 @@ func (s *FilesManager) RemoveObject(ctx context.Context, object string) error {
 	return s.storage.Delete(ctx, object)
 }
 
-func (s *FilesManager) UploadObject(ctx context.Context, folder string, file service.File) (string, error) {
+func (s *FilesManager) UploadObject(ctx context.Context, folder string, file File) (string, error) {
 	f, err := os.Open(file.Title)
 	if err != nil {
 		return "", err
@@ -64,7 +64,7 @@ func (s *FilesManager) UploadObject(ctx context.Context, folder string, file ser
 	return fileName, nil
 }
 
-func (s *FilesManager) generateFilename(folder string, file service.File) string {
+func (s *FilesManager) generateFilename(folder string, file File) string {
 	fileName := fmt.Sprintf("%s.%s", uuid.New().String(), getFileExtension(file.Title))
 	folderType := folders[file.Type]
 

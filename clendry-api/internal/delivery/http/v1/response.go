@@ -6,9 +6,9 @@ type response struct {
 	Message string `json:"message"`
 }
 
-type dataResponse struct {
-	Data interface{} `json:"data"`
-}
+// type dataResponse struct {
+// 	Data interface{} `json:"data"`
+// }
 
 func newResponse(c echo.Context, statusCode int, message string) error {
 	return c.JSON(statusCode, response{message})

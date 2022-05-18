@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
 	"github.com/artomsopun/clendry/clendry-api/internal/repository"
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
@@ -9,7 +11,6 @@ import (
 	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
 	"github.com/artomsopun/clendry/clendry-api/pkg/storage"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
-	"time"
 )
 
 type UserInfo struct {
@@ -187,6 +188,7 @@ type Services struct {
 	Auths    Auths
 	Profiles Profiles
 	Users    Users
+	Storages FileStorages
 }
 
 type Deps struct {
@@ -203,10 +205,12 @@ func NewServices(deps Deps) *Services {
 	authsService := NewAuthsService(deps.Repos.Users, deps.Repos.Sessions, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 	profilesService := NewProfilesService(deps.Repos.Users, deps.Repos.Files, deps.FilesManager, deps.Hasher)
 	usersService := NewUsersService(deps.Repos.Users, deps.Repos.Files, deps.Repos.BlockRequests, deps.Repos.FriendRequests, deps.FilesManager)
+	fileStorage := NewFilesService(deps.Repos.Users, deps.Repos.Files, deps.FilesManager)
 
 	return &Services{
 		Auths:    authsService,
 		Profiles: profilesService,
 		Users:    usersService,
+		Storages: fileStorage,
 	}
 }

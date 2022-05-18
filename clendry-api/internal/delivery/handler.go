@@ -1,27 +1,25 @@
 package delivery
 
 import (
+	"net/http"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/config"
 	v1 "github.com/artomsopun/clendry/clendry-api/internal/delivery/http/v1"
 	"github.com/artomsopun/clendry/clendry-api/internal/service"
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
-	"github.com/artomsopun/clendry/clendry-api/pkg/files"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
 )
 
 type Handler struct {
 	services     *service.Services
 	tokenManager auth.TokenManager
-	filesManager files.Files
 }
 
-func NewHandler(services *service.Services, tokenManager auth.TokenManager, filesManager files.Files) *Handler {
+func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
 		services:     services,
 		tokenManager: tokenManager,
-		filesManager: filesManager,
 	}
 }
 
@@ -61,7 +59,7 @@ func (h *Handler) Init(cfg *config.Config) *echo.Echo {
 }
 
 func (h *Handler) initAPI(e *echo.Echo) {
-	handlerV1 := v1.NewHandler(h.services, h.tokenManager, h.filesManager)
+	handlerV1 := v1.NewHandler(h.services, h.tokenManager)
 	api := e.Group("/api")
 	{
 		handlerV1.Init(api)

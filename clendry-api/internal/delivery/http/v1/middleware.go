@@ -2,11 +2,12 @@ package v1
 
 import (
 	"errors"
-	"github.com/artomsopun/clendry/clendry-api/pkg/types"
-	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/artomsopun/clendry/clendry-api/pkg/types"
+	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -38,23 +39,23 @@ func (h *Handler) getAccessCookie(c echo.Context) (string, error) {
 	return h.tokenManager.Parse(accessCookie.Value)
 }
 
-func (h *Handler) parseAuthHeader(c echo.Context) (string, error) {
-	header := c.Request().Header.Get(authorizationHeader)
-	if header == "" {
-		return "", errors.New("empty auth header")
-	}
+// func (h *Handler) parseAuthHeader(c echo.Context) (string, error) {
+// 	header := c.Request().Header.Get(authorizationHeader)
+// 	if header == "" {
+// 		return "", errors.New("empty auth header")
+// 	}
 
-	headerParts := strings.Split(header, " ")
-	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		return "", errors.New("invalid auth header")
-	}
+// 	headerParts := strings.Split(header, " ")
+// 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+// 		return "", errors.New("invalid auth header")
+// 	}
 
-	if len(headerParts[1]) == 0 {
-		return "", errors.New("token is empty")
-	}
+// 	if len(headerParts[1]) == 0 {
+// 		return "", errors.New("token is empty")
+// 	}
 
-	return h.tokenManager.Parse(headerParts[1])
-}
+// 	return h.tokenManager.Parse(headerParts[1])
+// }
 
 func getUserId(c echo.Context) (types.BinaryUUID, error) {
 	return getIdByContext(c, userCtx)
