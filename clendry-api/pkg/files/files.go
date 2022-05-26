@@ -8,7 +8,6 @@ import (
 
 type File struct {
 	Title       string
-	URL         string
 	Size        int64
 	ContentType string
 	Type        domain.FileType
@@ -16,7 +15,7 @@ type File struct {
 
 type Files interface {
 	GetObjectLink(fileName string) string
-	UploadObject(ctx context.Context, folder string, file File) (string, error)
+	UploadObject(ctx context.Context, userID string, folder string, file File) (string, string, error)
 	RemoveObject(ctx context.Context, object string) error
 	RemoveFile(filename string)
 }

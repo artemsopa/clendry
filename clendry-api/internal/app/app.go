@@ -3,6 +3,12 @@ package app
 import (
 	"context"
 	"errors"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/config"
 	"github.com/artomsopun/clendry/clendry-api/internal/delivery"
 	"github.com/artomsopun/clendry/clendry-api/internal/repository"
@@ -10,16 +16,12 @@ import (
 	"github.com/artomsopun/clendry/clendry-api/internal/service"
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
 	"github.com/artomsopun/clendry/clendry-api/pkg/database"
+	"github.com/artomsopun/clendry/clendry-api/pkg/files"
 	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
 	"github.com/artomsopun/clendry/clendry-api/pkg/logger"
 	"github.com/artomsopun/clendry/clendry-api/pkg/storage"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 func Run(configPath string) {
@@ -54,15 +56,17 @@ func Run(configPath string) {
 		return
 	}
 
+	filesManager := files.NewFilesManager(storageProvider)
+
 	// Services, Repos & API Handlers
 	repos := repository.NewRepositories(db)
 	services := service.NewServices(service.Deps{
 		Repos:           repos,
 		Hasher:          hasher,
 		TokenManager:    tokenManager,
+		FilesManager:    filesManager,
 		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
-		StorageProvider: storageProvider,
 	})
 	handlers := delivery.NewHandler(services, tokenManager)
 

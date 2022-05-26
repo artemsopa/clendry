@@ -1,30 +1,31 @@
 package domain
 
-import (
-	"github.com/artomsopun/clendry/clendry-api/pkg/types"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"time"
-)
+// import (
+// 	"time"
 
-type Message struct {
-	ID types.BinaryUUID `gorm:"primary_key;default:(UUID_TO_BIN(UUID()))"`
+// 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
+// 	"github.com/google/uuid"
+// 	"gorm.io/gorm"
+// )
 
-	Text      string    `gorm:"column:text"`
-	Type      string    `gorm:"column:type"`
-	Forwarded bool      `gorm:"column:forwarded"`
-	Hided     bool      `gorm:"column:hided"`
-	Liked     bool      `gorm:"column:hided"`
-	CreatedAt time.Time `gorm:"column:created_at"`
+// type Message struct {
+// 	ID types.BinaryUUID `gorm:"primary_key;default:(UUID_TO_BIN(UUID()))"`
 
-	UserID types.BinaryUUID `gorm:"column:user_id"`
-	ChatID types.BinaryUUID `gorm:"column:chat_id"`
+// 	Text      string    `gorm:"column:text"`
+// 	Type      string    `gorm:"column:type"`
+// 	Forwarded bool      `gorm:"column:forwarded"`
+// 	Hided     bool      `gorm:"column:hided"`
+// 	Liked     bool      `gorm:"column:hided"`
+// 	CreatedAt time.Time `gorm:"column:created_at"`
 
-	Files []File `gorm:"foreignKey:MessageID;constraint:OnDelete:CASCADE"`
-}
+// 	UserID types.BinaryUUID `gorm:"column:user_id"`
+// 	ChatID types.BinaryUUID `gorm:"column:chat_id"`
 
-func (p *Message) BeforeCreate(tx *gorm.DB) error {
-	id, err := uuid.NewRandom()
-	p.ID = types.BinaryUUID(id)
-	return err
-}
+// 	Files []File `gorm:"foreignKey:MessageID;constraint:OnDelete:CASCADE"`
+// }
+
+// func (p *Message) BeforeCreate(tx *gorm.DB) error {
+// 	id, err := uuid.NewRandom()
+// 	p.ID = types.BinaryUUID(id)
+// 	return err
+// }

@@ -9,7 +9,6 @@ import (
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
 	"github.com/artomsopun/clendry/clendry-api/pkg/files"
 	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
-	"github.com/artomsopun/clendry/clendry-api/pkg/storage"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 )
 
@@ -58,20 +57,25 @@ type Token struct {
 }
 
 type File struct {
-	ID          types.BinaryUUID
+	ID types.BinaryUUID
+
 	Title       string
-	URL         string
+	Url         string
 	Size        int64
 	ContentType string
 	Type        domain.FileType
+	IsFavourite bool
+	IsTrash     bool
 	CreatedAt   time.Time
-	ForeignID   types.BinaryUUID
+
+	MemberID types.BinaryUUID
+	UserID   types.BinaryUUID
 }
 
 const (
-	users    = "users"
-	chats    = "chats"
-	messages = "messages"
+	USERS    = "users"
+	CHATS    = "chats"
+	MESSAGES = "messages"
 )
 
 type Message struct {
@@ -108,6 +112,15 @@ type ChatItem struct {
 type ChatInput struct {
 	Chat    Chat
 	Members []types.BinaryUUID
+}
+
+type Folder struct {
+	ID types.BinaryUUID
+
+	Title     string
+	CreatedAt time.Time
+
+	UserID types.BinaryUUID
 }
 
 type Auths interface {
@@ -148,8 +161,24 @@ type FileStorages interface {
 	GetAllFiles(userID types.BinaryUUID) ([]File, error)
 	GetAllFilesByType(userID types.BinaryUUID, fileType domain.FileType) ([]File, error)
 	GetFile(userID, fileID types.BinaryUUID) (File, error)
-	UploadFile(ctx context.Context, file File) error
+	GetContentType(ctype string) domain.FileType
+	UploadFile(ctx context.Context, userID string, file File) (types.BinaryUUID, error)
+	ChangeFileTitle(userID, fileID types.BinaryUUID, title string) error
+
+	GetAllFilesByFolderID(userID, folderID types.BinaryUUID) ([]File, error)
+	AddFileToFolder(userID, folderID, fileID types.BinaryUUID) error
+	DeleteFileFromFolder(memberID types.BinaryUUID) error
+
 	DeleteFile(userID, fileID types.BinaryUUID) error
+	RemoveFile(filename string)
+
+	GetAllFavouriteByUserID(userID types.BinaryUUID) ([]File, error)
+	AddToFavourite(userID, fileID types.BinaryUUID) error
+	DeleteFromFavourite(userID, fileID types.BinaryUUID) error
+
+	GetAllTrashByUserID(userID types.BinaryUUID) ([]File, error)
+	AddToTrash(userID, fileID types.BinaryUUID) error
+	DeleteFromTrash(userID, fileID types.BinaryUUID) error
 }
 
 type Chats interface {
@@ -184,11 +213,20 @@ type Chats interface {
 	LeaveChatGroup(userID, chatID types.BinaryUUID) error //non-group chat can be hided only
 }
 
+type Folders interface {
+	GetAllFoldersByUserID(userID types.BinaryUUID) ([]Folder, error)
+	GetFolderByUserID(userID, folderID types.BinaryUUID) (Folder, error)
+	ChangeFolderTitleUserID(userID, folderID types.BinaryUUID, title string) error
+	CreateFolder(folder Folder) error
+	DeleteFolderByID(userID, folderID types.BinaryUUID) error
+}
+
 type Services struct {
 	Auths    Auths
 	Profiles Profiles
 	Users    Users
 	Storages FileStorages
+	Folders  Folders
 }
 
 type Deps struct {
@@ -198,19 +236,20 @@ type Deps struct {
 	TokenManager    auth.TokenManager
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
-	StorageProvider storage.Provider
 }
 
 func NewServices(deps Deps) *Services {
 	authsService := NewAuthsService(deps.Repos.Users, deps.Repos.Sessions, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 	profilesService := NewProfilesService(deps.Repos.Users, deps.Repos.Files, deps.FilesManager, deps.Hasher)
-	usersService := NewUsersService(deps.Repos.Users, deps.Repos.Files, deps.Repos.BlockRequests, deps.Repos.FriendRequests, deps.FilesManager)
-	fileStorage := NewFilesService(deps.Repos.Users, deps.Repos.Files, deps.FilesManager)
+	//usersService := NewUsersService(deps.Repos.Users, deps.Repos.Files, deps.FilesManager)//, deps.Repos.BlockRequests, deps.Repos.FriendRequests,)
+	fileStorage := NewFilesService(deps.Repos.Files, deps.Repos.FolderFiles, deps.FilesManager)
+	foldersService := NewFoldersService(deps.Repos.Folders)
 
 	return &Services{
 		Auths:    authsService,
 		Profiles: profilesService,
-		Users:    usersService,
+		//Users:    usersService,
 		Storages: fileStorage,
+		Folders:  foldersService,
 	}
 }

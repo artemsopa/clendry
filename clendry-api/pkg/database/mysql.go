@@ -2,10 +2,11 @@ package database
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
 )
 
 var DB *gorm.DB
@@ -22,8 +23,8 @@ func NewDB(user, password, host, port, name string) *gorm.DB {
 	}
 
 	if err := DB.AutoMigrate(
-		&domain.User{}, &domain.Chat{}, &domain.Session{}, &domain.FriendRequest{},
-		&domain.BlockRequest{}, &domain.Membership{},
+		&domain.User{}, &domain.Session{}, &domain.File{}, &domain.Folder{}, &domain.FolderFile{},
+		//&domain.FriendRequest{}, &domain.BlockRequest{}, &domain.Membership{}, &domain.Chat{},
 	); err != nil {
 		log.Panicln(err)
 	}

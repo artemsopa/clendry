@@ -28,7 +28,7 @@ type FilesManager struct {
 	storage storage.Provider
 }
 
-func NewFilesService(storage storage.Provider) *FilesManager {
+func NewFilesManager(storage storage.Provider) *FilesManager {
 	return &FilesManager{storage: storage}
 }
 
@@ -40,10 +40,10 @@ func (s *FilesManager) RemoveObject(ctx context.Context, object string) error {
 	return s.storage.Delete(ctx, object)
 }
 
-func (s *FilesManager) UploadObject(ctx context.Context, folder string, file File) (string, error) {
+func (s *FilesManager) UploadObject(ctx context.Context, userID string, folder string, file File) (string, string, error) {
 	f, err := os.Open(file.Title)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	info, _ := f.Stat()
@@ -51,32 +51,39 @@ func (s *FilesManager) UploadObject(ctx context.Context, folder string, file Fil
 
 	defer f.Close()
 
-	fileName := s.generateFilename(folder, file)
+	fileTitle, fileURL := s.generateFilename(userID, folder, file)
 	err = s.storage.Upload(ctx, storage.UploadInput{
 		File:        f,
 		Size:        file.Size,
 		ContentType: file.ContentType,
-		Name:        fileName,
+		Name:        fileURL,
 	})
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return fileName, nil
+	return fileTitle, fileURL, nil
 }
 
-func (s *FilesManager) generateFilename(folder string, file File) string {
-	fileName := fmt.Sprintf("%s.%s", uuid.New().String(), getFileExtension(file.Title))
+func (s *FilesManager) generateFilename(userID string, folder string, file File) (string, string) {
+	fileName := fmt.Sprintf("%s-%s.%s", getFileTitle(file.Title), uuid.New().String(), getFileExtension(file.Title))
 	folderType := folders[file.Type]
 
-	fileNameParts := strings.Split(file.Title, "-") // first part is userID
-
-	return fmt.Sprintf("%s/%s/%s/%s", folder, fileNameParts[0], folderType, fileName)
+	return fileName, fmt.Sprintf("%s/%s/%s/%s", folder, userID, folderType, fileName)
 }
 
 func getFileExtension(filename string) string {
 	parts := strings.Split(filename, ".")
 
 	return parts[len(parts)-1]
+}
+
+func getFileTitle(filename string) string {
+	parts := strings.Split(filename, ".")
+	title := ""
+	for i := 0; i < len(parts)-1; i++ {
+		title += parts[i]
+	}
+	return title
 }
 
 func (s *FilesManager) RemoveFile(filename string) {

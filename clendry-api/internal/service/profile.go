@@ -31,15 +31,15 @@ func (s *ProfilesService) GetProfile(userID types.BinaryUUID) (UserInfo, error) 
 	if err != nil {
 		return UserInfo{}, err
 	}
-	file, err := s.repoFiles.GetAvatarByUserID(userID)
-	if err != nil {
-		return UserInfo{}, err
-	}
+	// file, err := s.repoFiles.GetAvatarByUserID(userID)
+	// if err != nil {
+	// 	return UserInfo{}, err
+	// }
 	return UserInfo{
-		ID:     user.ID,
-		Nick:   user.Nick,
-		Email:  user.Email,
-		Avatar: s.files.GetObjectLink(file.Title),
+		ID:    user.ID,
+		Nick:  user.Nick,
+		Email: user.Email,
+		// Avatar: s.files.GetObjectLink(file.Title),
 	}, nil
 }
 

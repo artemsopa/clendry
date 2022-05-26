@@ -2,12 +2,13 @@ package service
 
 import (
 	"errors"
+	"time"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
 	"github.com/artomsopun/clendry/clendry-api/internal/repository"
 	"github.com/artomsopun/clendry/clendry-api/pkg/auth"
 	"github.com/artomsopun/clendry/clendry-api/pkg/hash"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
-	"time"
 )
 
 type AuthService struct {

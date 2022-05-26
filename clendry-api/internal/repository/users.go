@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"gorm.io/gorm"
@@ -92,7 +93,7 @@ func (r *UsersRepo) GetAllIncomingReqs(userID types.BinaryUUID) ([]domain.User, 
 
 func (r *UsersRepo) GetById(userID types.BinaryUUID) (domain.User, error) {
 	user := domain.User{}
-	if err := r.db.First(&user, userID).Error; err != nil {
+	if err := r.db.Where("id = ?", userID).First(&user).Error; err != nil {
 		return domain.User{}, errors.New("user not found")
 	}
 	return user, nil

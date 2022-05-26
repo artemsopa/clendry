@@ -73,7 +73,7 @@ func (h *Handler) changePassword(c echo.Context) error {
 	return newResponse(c, http.StatusOK, "password changed")
 }
 
-const maxUploadSize = 5 << 20
+const maxUploadSize = 100 << 20
 
 // var imageTypes = map[string]interface{}{
 // 	"image/jpeg": nil,

@@ -13,14 +13,15 @@ type User struct {
 	Email    string `gorm:"column:email"`
 	Password string `gorm:"column:password"`
 
-	Session        Session         `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
-	SentReqs       []FriendRequest `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
-	IncomingReqs   []FriendRequest `gorm:"foreignKey:DefID;constraint:OnDelete:CASCADE"`
-	SentBlocks     []BlockRequest  `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
-	IncomingBlocks []BlockRequest  `gorm:"foreignKey:DefID;constraint:OnDelete:CASCADE"`
-	Messages       []Message       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
-	Memberships    []Membership    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
-	Files          []File          `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	Session Session `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	//SentReqs       []FriendRequest `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	//IncomingReqs   []FriendRequest `gorm:"foreignKey:DefID;constraint:OnDelete:CASCADE"`
+	//SentBlocks     []BlockRequest  `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	//IncomingBlocks []BlockRequest  `gorm:"foreignKey:DefID;constraint:OnDelete:CASCADE"`
+	//Messages       []Message       `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	//Memberships    []Membership    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	Files   []File   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	Folders []Folder `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {

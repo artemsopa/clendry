@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+
 	"github.com/artomsopun/clendry/clendry-api/internal/domain"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
 	"gorm.io/gorm"
@@ -19,7 +20,7 @@ func NewFilesRepo(db *gorm.DB) *FilesRepo {
 
 func (r *FilesRepo) GetAllFilesByUserID(userID types.BinaryUUID) ([]domain.File, error) {
 	var file []domain.File
-	if err := r.db.Where("user_id = ? AND current = ?", userID, false).Find(&file).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND is_trash = ?", userID, false).Find(&file).Error; err != nil {
 		return []domain.File{}, errors.New("files not found")
 	}
 	return file, nil
@@ -27,7 +28,15 @@ func (r *FilesRepo) GetAllFilesByUserID(userID types.BinaryUUID) ([]domain.File,
 
 func (r *FilesRepo) GetFileByUserID(userID, fileID types.BinaryUUID) (domain.File, error) {
 	file := domain.File{}
-	if err := r.db.Where("file_id = ? AND user_id = ?", fileID, userID).First(&file).Error; err != nil {
+	if err := r.db.Where("id = ? AND user_id = ?", fileID, userID).First(&file).Error; err != nil {
+		return domain.File{}, errors.New("file not found")
+	}
+	return file, nil
+}
+
+func (r *FilesRepo) GetFileByFolder(userID, fileID types.BinaryUUID) (domain.File, error) {
+	file := domain.File{}
+	if err := r.db.Where("id = ? AND user_id = ? AND is_trash = ?", fileID, userID, false).First(&file).Error; err != nil {
 		return domain.File{}, errors.New("file not found")
 	}
 	return file, nil
@@ -35,9 +44,9 @@ func (r *FilesRepo) GetFileByUserID(userID, fileID types.BinaryUUID) (domain.Fil
 
 func (r *FilesRepo) GetAvatarByUserID(userID types.BinaryUUID) (domain.File, error) {
 	file := domain.File{}
-	if err := r.db.Where("user_id = ? AND current = ?", userID, true).First(&file).Error; err != nil {
-		return domain.File{}, errors.New("file not found")
-	}
+	// if err := r.db.Where("user_id = ? AND current = ?", userID, true).First(&file).Error; err != nil {
+	// 	return domain.File{}, errors.New("file not found")
+	// }
 	return file, nil
 }
 
@@ -67,22 +76,109 @@ func (r *FilesRepo) CreateAvatarByUserID(file domain.File) error {
 
 func (r *FilesRepo) GetAllTypeFilesByUserID(userID types.BinaryUUID, filetype domain.FileType) ([]domain.File, error) {
 	var files []domain.File
-	if err := r.db.Where("user_id = ? AND type = ? AND current = ?", userID, filetype, false).Find(&files).Error; err != nil {
+	if err := r.db.Where("user_id = ? AND type = ? AND is_trash = ?", userID, filetype, false).Find(&files).Error; err != nil {
 		return []domain.File{}, errors.New("files not found")
 	}
 	return files, nil
 }
 
-func (r *FilesRepo) Create(file domain.File) error {
+func (r *FilesRepo) Create(file domain.File) (types.BinaryUUID, error) {
 	err := r.db.Create(&file).Error
-	return err
+	if err != nil {
+		return types.BinaryUUID{}, err
+	}
+	return file.ID, nil
 }
 
 func (r *FilesRepo) DeleteByID(userID, fileID types.BinaryUUID) error {
-	if err := r.db.Where("file_id = ? AND user_id = ?", fileID, userID).First(&domain.File{}).Error; err != nil {
+	err := r.db.Where("id = ? AND user_id = ?", fileID, userID).Delete(&domain.File{}).Error
+	return err
+}
+
+func (r *FilesRepo) GetAllFilesByUserFolderID(userID, folderID types.BinaryUUID) ([]domain.File, error) {
+	var files []domain.File
+	if err := r.db.Where("user_id = ? AND folder_id = ? AND is_trash = ?", userID, folderID, false).Find(&files).Error; err != nil {
+		return []domain.File{}, errors.New("files not found")
+	}
+	return files, nil
+}
+
+func (r *FilesRepo) AddToFolder(userID, folderID, fileID types.BinaryUUID) error {
+	if err := r.db.Where("id = ? AND user_id = ?", fileID, userID).First(&domain.File{}).Error; err != nil {
 		return err
 	}
-	err := r.db.Delete(&domain.File{}, fileID).Error
+	err := r.db.Model(&domain.File{}).Where("id = ? AND user_id = ?", fileID, userID).
+		Update("folder_id", folderID).Error
+	return err
+}
+
+func (r *FilesRepo) DeleteFromFolder(userID, fileID types.BinaryUUID) error {
+	if err := r.db.Where("id = ? AND user_id = ?", fileID, userID).First(&domain.File{}).Error; err != nil {
+		return err
+	}
+	err := r.db.Model(&domain.File{}).Where("id = ? AND user_id = ?", fileID, userID).
+		Update("folder_id", nil).Error
+	return err
+}
+
+func (r *FilesRepo) GetAllFavouriteByUserID(userID types.BinaryUUID) ([]domain.File, error) {
+	var file []domain.File
+	if err := r.db.Where("user_id = ? AND is_favourite = ? AND is_trash = ?", userID, true, false).Find(&file).Error; err != nil {
+		return []domain.File{}, errors.New("files not found")
+	}
+	return file, nil
+}
+
+func (r *FilesRepo) AddToFavourite(userID, fileID types.BinaryUUID) error {
+	if err := r.db.Where("id = ? AND user_id = ?", fileID, userID).First(&domain.File{}).Error; err != nil {
+		return err
+	}
+	err := r.db.Model(&domain.File{}).Where("id = ? AND user_id = ?", fileID, userID).
+		Update("is_favourite", true).Error
+	return err
+}
+
+func (r *FilesRepo) DeleteFromFavourite(userID, fileID types.BinaryUUID) error {
+	if err := r.db.Where("id = ? AND user_id = ?", fileID, userID).First(&domain.File{}).Error; err != nil {
+		return err
+	}
+	err := r.db.Model(&domain.File{}).Where("id = ? AND user_id = ?", fileID, userID).
+		Update("is_favourite", false).Error
+	return err
+}
+
+func (r *FilesRepo) GetAllTrashByUserID(userID types.BinaryUUID) ([]domain.File, error) {
+	var file []domain.File
+	if err := r.db.Where("user_id = ? AND is_trash = ?", userID, true).Find(&file).Error; err != nil {
+		return []domain.File{}, errors.New("files not found")
+	}
+	return file, nil
+}
+func (r *FilesRepo) AddToTrash(userID, fileID types.BinaryUUID) error {
+	if err := r.db.Where("id = ? AND user_id = ?", fileID, userID).First(&domain.File{}).Error; err != nil {
+		return err
+	}
+	err := r.db.Model(&domain.File{}).Where("id = ? AND user_id = ?", fileID, userID).
+		Update("is_trash", true).Error
+	return err
+}
+
+func (r *FilesRepo) DeleteFromTrash(userID, fileID types.BinaryUUID) error {
+	if err := r.db.Where("id = ? AND user_id = ?", fileID, userID).First(&domain.File{}).Error; err != nil {
+		return err
+	}
+	err := r.db.Model(&domain.File{}).Where("id = ? AND user_id = ?", fileID, userID).
+		Update("is_trash", false).Error
+	return err
+}
+
+func (r *FilesRepo) ChangeFileTitle(userID, fileID types.BinaryUUID, title string) error {
+	err := r.db.Where("title = ?", title).First(&domain.File{}).Error
+	if err == nil {
+		return errors.New("title already exists")
+	}
+	err = r.db.Model(&domain.File{}).Where("id = ? AND user_id = ?", fileID, userID).
+		Updates(&domain.File{Title: title}).Error
 	return err
 }
 
