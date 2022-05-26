@@ -1,0 +1,173 @@
+[
+    {
+        "name": "home",
+        "title": "Dashboard",
+        "short_title": "Home",
+        "href": "/",
+        "link": {
+            "name": "/"
+        },
+        "icon_class": "las la-home iq-arrow-left"
+    },
+    {
+        "name": "user",
+        "title": "User Details",
+        "href": "#user",
+        "link": {
+            "name": ""
+        },
+        "class_name": "user",
+        "icon_class": "las la-user-tie",
+        "expanded_icon_class": "las la-angle-down iq-arrow-right arrow-hover",
+        "collapse_icon_class": "las la-angle-right iq-arrow-right arrow-active",
+        "children": [
+            {
+                "name": "friends",
+                "title": "Friends",
+                "href": "app/user-list",
+                "link": {
+                    "name": "app.user-list"
+                },
+                "icon_class": "las la-list-alt"
+            },
+            {
+                "name": "incoming-reqs",
+                "title": "Incoming Reqs",
+                "href": "backend/auth-sign-in",
+                "link": {
+                    "name": "auth.login"
+                },
+                "class_name": "",
+                "icon_class": "las la-user-plus"
+            },
+            {
+                "name": "sent-reqs",
+                "title": "Sent Reqs",
+                "href": "app/user-add",
+                "link": {
+                    "name": "app.user-add"
+                },
+                "icon_class": "las la-sign-in-alt"
+            },
+            {
+                "name": "blocks",
+                "title": "Blocks",
+                "href": "backend/auth-lock-screen",
+                "link": {
+                    "name": "auth.lock-screen"
+                },
+                "class_name": "",
+                "icon_class": "las la-lock"
+            }
+        ]
+    },
+    {
+        "name": "chats",
+        "title": "Chats",
+        "href": "backend/ui-helper-classes",
+        "link": {
+            "name": "Ui.helper-classes"
+        },
+        "class_name": "",
+        "icon_class": "las la-hands-helping"
+    },
+    {
+        "name": "drive",
+        "title": "My Drive",
+        "short_title": "drive",
+        "href": "#drive",
+        "link": {
+            "name": ""
+        },
+        "class_name": "",
+        "icon_class": "las la-hdd",
+        "expanded_icon_class": "las la-angle-down iq-arrow-right arrow-hover",
+        "collapse_icon_class": "las la-angle-right iq-arrow-right arrow-active",
+        "children": [
+            {
+                "name": "folders",
+                "title": "Folders",
+                "href": "#folders",
+                "link": {
+                    "name": ""
+                },
+                "class_name": "",
+                "icon_class": "las la-boxes",
+                "expanded_icon_class": "las la-angle-down iq-arrow-right arrow-hover",
+                "collapse_icon_class": "las la-angle-right iq-arrow-right arrow-active",
+                "children": [
+                    {
+                        "name": "folder-1",
+                        "title": "Folder 1",
+                        "href": "folder-1",
+                        "link": {
+                            "name": "folder"
+                        },
+                        "class_name": "",
+                        "icon_class": "las la-object-group"
+                    }
+                ]
+            },
+            {
+                "name": "recent",
+                "title": "Recent",
+                "short_title": "recent",
+                "href": "recent",
+                "link": {
+                    "name": "recent"
+                },
+                "icon_class": "las la-stopwatch iq-arrow-left"
+            },
+            {
+                "name": "images",
+                "title": "Images",
+                "href": "images",
+                "link": {
+                    "name": "images"
+                },
+                "class_name": "",
+                "icon_class": "las la-image"
+            },
+            {
+                "name": "media",
+                "title": "Media",
+                "href": "media",
+                "link": {
+                    "name": "media"
+                },
+                "class_name": "",
+                "icon_class": "las la-photo-video"
+            },
+            {
+                "name": "files",
+                "title": "Files",
+                "short_title": "files",
+                "href": "files",
+                "link": {
+                    "name": "files"
+                },
+                "icon_class": "lar la-file-alt iq-arrow-left"
+            },
+            {
+                "name": "favourites",
+                "title": "Favourites",
+                "short_title": "favourites",
+                "href": "favourites",
+                "link": {
+                    "name": "favourites"
+                },
+                "icon_class": "lar la-star"
+            },
+            {
+                "name": "trash",
+                "title": "Trash",
+                "short_title": "trash",
+                "href": "trash",
+                "link": {
+                    "name": "trash"
+                },
+                "icon_class": "las la-trash-alt iq-arrow-left"
+            }
+        ]
+    }
+]

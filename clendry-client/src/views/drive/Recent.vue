@@ -164,7 +164,7 @@
                                                 <div :class="file.color">
                                                     <i :class="file.icon"></i>
                                                 </div>
-                                                <a href="#"  :data-title="file.name" :data-url="file.url" @click="$root.$emit('bv::show::modal', 'viewer-modal', $event.target)" v-b-modal.viewer-modal >
+                                                <a href="#"  :data-title="file.name" :data-url="file.url" @click="$root?.$emit('bv::show::modal', 'viewer-modal', $event.target)" v-b-modal.viewer-modal >
                                                 <span style="color:#535F6B;">{{file.name}}</span>
                                                 </a>
                                             </div>

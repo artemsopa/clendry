@@ -6,7 +6,7 @@
     :id="idName"
     :accordion="accordianName"
   >
-    <li
+    <!-- <li
       v-for="(item, index) in items"
       :key="index"
       :class="
@@ -52,12 +52,12 @@
         :items="item.children"
         class="iq-submenu collapse"
       />
-    </li>
+    </li> -->
   </b-collapse>
 </template>
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import {core} from '@/config/pluginInit.js';
+import { core } from "../../config/pluginInit";
 
 export default defineComponent({
   name: "List",

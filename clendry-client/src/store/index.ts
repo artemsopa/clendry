@@ -1,7 +1,8 @@
-import { createStore } from 'vuex'
+import { Commit, createStore } from 'vuex'
 
 export default createStore({
    state: {
+    authenticated: false,
     appName: 'Clendry ',
     logo: require('../assets/images/logo.png'),
     darklogo:require('../assets/images/logo-white.png'),
@@ -13,6 +14,7 @@ export default createStore({
     }
   },
   mutations: {
+    SET_AUTH: (state: { authenticated: boolean }, auth: boolean) => state.authenticated = auth,
     layoutModeCommit (state, payload) {
       state.dark = payload
       if (!payload) {
@@ -23,6 +25,7 @@ export default createStore({
     }
   },
   actions: {
+    setAuth: ({ commit }: { commit: Commit }, auth: boolean) => commit('SET_AUTH', auth),
     layoutModeAction (context, payload) {
       context.commit('layoutModeCommit', payload.dark)
     }

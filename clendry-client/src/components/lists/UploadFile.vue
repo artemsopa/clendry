@@ -14,11 +14,12 @@
           <div class="card card-block card-stretch card-transparent">
             <div class="card-header d-flex justify-content-between pb-0">
               <div class="header-title">
-                <h4 class="card-title">All Files</h4>
+                <h4 v-if="lists?.length>0" class="card-title">{{ title }}</h4>
+                <h4 v-if="lists?.length<1" class="card-title">{{ errTitle }}</h4>
               </div>
             </div>
           </div>
-          <div class="d-flex align-items-center">
+          <div v-if="lists?.length>0" class="d-flex align-items-center">
             <div class="list-grid-toggle mr-4" @click="change()">
               <span class="icon icon-grid i-grid" v-if="data"
                 ><i class="ri-layout-grid-line font-size-20"></i
@@ -28,7 +29,6 @@
               ></span>
               <span class="label label-list">List</span>
             </div>
-            <!--<DropdownToggle /> -->
           </div>
         </div>
       </div>
@@ -36,15 +36,19 @@
 
     <div v-if="data" class="icon icon-grid i-grid">
       <div class="row">
-        <div class="col-lg-3 col-md-6 col-sm-6">
+        <div
+          class="col-lg-3 col-md-6 col-sm-6"
+          v-for="(list, index) in lists"
+          :key="index"
+        >
           <div class="card card-block card-stretch card-height">
             <div class="card-body image-thumb">
               <div class="mb-4 text-center p-3 rounded iq-thumb">
                 <div class="iq-image-overlay"></div>
                 <a
                   href="#"
-                  data-title="Spike.pdf"
-                  :data-url="`${baseUrl}/doc-viewer/files/demo.pdf`"
+                  :data-title="list.name"
+                  :data-url="list.url"
                   @click="
                     $root.$emit(
                       'bv::show::modal',
@@ -53,94 +57,10 @@
                     )
                   "
                   v-b-modal.viewer-modal
-                  ><img
-                    src="@/assets/images/layouts/page-7/pdf.png"
-                    class="img-fluid"
-                    alt="image1"
+                  ><img :src="list.image" class="img-fluid" alt="image1"
                 /></a>
               </div>
-              <h6>Spike.pdf</h6>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="card card-block card-stretch card-height">
-            <div class="card-body image-thumb">
-              <div class="mb-4 text-center p-3 rounded iq-thumb">
-                <div class="iq-image-overlay"></div>
-                <a
-                  href="#"
-                  data-title="Support.docx"
-                  :data-url="`${baseUrl}/doc-viewer/files/demo.docx`"
-                  @click="
-                    $root.$emit(
-                      'bv::show::modal',
-                      'viewer-modal',
-                      $event.target
-                    )
-                  "
-                  v-b-modal.viewer-modal
-                  ><img
-                    src="@/assets/images/layouts/page-7/doc.png"
-                    class="img-fluid"
-                    alt="image1"
-                /></a>
-              </div>
-              <h6>Support.docx</h6>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="card card-block card-stretch card-height">
-            <div class="card-body image-thumb">
-              <div class="mb-4 text-center p-3 rounded iq-thumb">
-                <div class="iq-image-overlay"></div>
-                <a
-                  href="#"
-                  data-title="Colour.xlsx"
-                  :data-url="`${baseUrl}/doc-viewer/files/demo.xlsx`"
-                  @click="
-                    $root.$emit(
-                      'bv::show::modal',
-                      'viewer-modal',
-                      $event.target
-                    )
-                  "
-                  v-b-modal.viewer-modal
-                  ><img
-                    src="@/assets/images/layouts/page-7/xlsx.png"
-                    class="img-fluid"
-                    alt="image1"
-                /></a>
-              </div>
-              <h6>Colour.xlsx</h6>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="card card-block card-stretch card-height">
-            <div class="card-body image-thumb">
-              <div class="mb-4 text-center p-3 rounded iq-thumb">
-                <div class="iq-image-overlay"></div>
-                <a
-                  href="#"
-                  data-title="Flavour.pptx"
-                  :data-url="`${baseUrl}/doc-viewer/files/demo.pptx`"
-                  @click="
-                    $root.$emit(
-                      'bv::show::modal',
-                      'viewer-modal',
-                      $event.target
-                    )
-                  "
-                  v-b-modal.viewer-modal
-                  ><img
-                    src="@/assets/images/layouts/page-7/ppt.png"
-                    class="img-fluid"
-                    alt="image1"
-                /></a>
-              </div>
-              <h6>Flavour.pptx</h6>
+              <h6>{{ list.name }}</h6>
             </div>
           </div>
         </div>
@@ -245,52 +165,19 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
 
 export default defineComponent({
-  name: "Files",
+  name: "UploadFile",
+  props: {
+    title: String,
+    errTitle: String,
+    lists: Array,
+  },
   data() {
     return {
       data: true,
-      lists: [
-        {
-          img: false,
-          url: this.baseUrl + "/doc-viewer/files/demo.pdf",
-          name: "Weekly Report.pdf",
-          image: require("@/assets/images/layouts/page-7/pdf.png"),
-          owner: "me",
-          size: "10 MB",
-          lastedit: "Mar 30, 2020 Gail Forcewind",
-        },
-        {
-          img: false,
-          url: this.baseUrl + "/doc-viewer/files/demo.docx",
-          name: "Milestone.docx",
-          image: require("@/assets/images/layouts/page-7/doc.png"),
-          owner: "Penny",
-          size: "65 MB",
-          lastedit: "Mar 31, 2020 Penny",
-        },
-        {
-          img: false,
-          url: this.baseUrl + "/doc-viewer/files/demo.xlsx",
-          name: "Training center.xlsx",
-          image: require("@/assets/images/layouts/page-7/xlsx.png"),
-          owner: "Banny",
-          size: "90 MB",
-          lastedit: "Mar 30, 2020 Banny",
-        },
-        {
-          img: false,
-          url: this.baseUrl + "/doc-viewer/files/demo.pptx",
-          name: "Flavour.pptx",
-          image: require("@/assets/images/layouts/page-7/ppt.png"),
-          owner: "me",
-          size: "10 MB",
-          lastedit: "Apr 04, 2020 me",
-        },
-      ],
     };
   },
   methods: {
