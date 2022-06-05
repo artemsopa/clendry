@@ -14,16 +14,19 @@ import (
 )
 
 func (h *Handler) initStoragesRoutes(api *echo.Group) {
-	profile := api.Group("/storage", h.checkAuth)
+	storage := api.Group("/storage", h.checkAuth)
 	{
-		files := profile.Group("/files")
+		storage.GET("", h.getMembership)
+		storage.GET("/kb", h.getSumKB)
+		files := storage.Group("/files")
 		{
 			files.GET("/", h.getAllFiles)
 			files.GET("/:type", h.getFilesByType)
+			files.GET("/folders/:id", h.getAllFolderFiles)
 			files.POST("/upload", h.uploadFile)
 			files.PUT("/folder", h.pushToFolder)
 			files.PUT("/title", h.changeFileTitle)
-			files.DELETE("/:id", h.deleteFile)
+			files.DELETE("", h.deleteFile)
 
 			fav := files.Group("/fav")
 			{
@@ -39,7 +42,7 @@ func (h *Handler) initStoragesRoutes(api *echo.Group) {
 				trash.PUT("/remove", h.deleteFromTrash)
 			}
 		}
-		folders := profile.Group("/folders")
+		folders := storage.Group("/folders")
 		{
 			folders.GET("/", h.getAllFolders)
 			folders.GET("/:id", h.getAllFilesByFolder)
@@ -49,6 +52,14 @@ func (h *Handler) initStoragesRoutes(api *echo.Group) {
 			folders.DELETE("/member/:id", h.deleteFromFolder)
 		}
 	}
+}
+
+func (h *Handler) getSumKB(c echo.Context) error {
+	userID, err := getUserId(c)
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, h.services.Storages.GetFilesKBSum(userID))
 }
 
 func (h *Handler) uploadFile(c echo.Context) error {
@@ -134,7 +145,7 @@ func (h *Handler) deleteFile(c echo.Context) error {
 	if err != nil {
 		return newResponse(c, http.StatusInternalServerError, err.Error())
 	}
-	fileIDStr := c.Param("id")
+	fileIDStr := c.QueryParam("id")
 
 	fileID := types.ParseUUID(fileIDStr)
 	err = h.services.Storages.DeleteFile(userID, fileID)
@@ -235,12 +246,41 @@ func (h *Handler) getAllFolders(c echo.Context) error {
 	return c.JSON(http.StatusOK, folders)
 }
 
+func (h *Handler) getAllFolderFiles(c echo.Context) error {
+	userID, err := getUserId(c)
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+	fileIDStr := c.Param("id")
+
+	fileID := types.ParseUUID(fileIDStr)
+	folderServ, err := h.services.Storages.GetAllFolderFilessByFileID(userID, fileID)
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+	var folders [][]folder
+	var typedFolder []folder
+	for _, folderServArr := range folderServ {
+		for _, foldeServ := range folderServArr {
+			typedFolder = append(typedFolder, folder{
+				ID:        foldeServ.ID,
+				Title:     foldeServ.Title,
+				CreatedAt: foldeServ.CreatedAt,
+				UserID:    foldeServ.UserID,
+			})
+		}
+		folders = append(folders, typedFolder)
+		typedFolder = []folder{}
+	}
+	return c.JSON(http.StatusOK, folders)
+}
+
 type input struct {
 	FolderID types.BinaryUUID `json:"folder_id"`
 	FileID   types.BinaryUUID `json:"file_id"`
 }
 
-type fileInput struct {
+type idInput struct {
 	ID types.BinaryUUID `json:"id"`
 }
 
@@ -405,7 +445,7 @@ func (h *Handler) addToFavourite(c echo.Context) error {
 	if err != nil {
 		return newResponse(c, http.StatusInternalServerError, err.Error())
 	}
-	var file fileInput
+	var file idInput
 	if err := c.Bind(&file); err != nil {
 		return newResponse(c, http.StatusBadRequest, "invalid input body")
 	}
@@ -422,7 +462,7 @@ func (h *Handler) deleteFromFavourite(c echo.Context) error {
 	if err != nil {
 		return newResponse(c, http.StatusInternalServerError, err.Error())
 	}
-	var file fileInput
+	var file idInput
 	if err := c.Bind(&file); err != nil {
 		return newResponse(c, http.StatusBadRequest, "invalid input body")
 	}
@@ -467,7 +507,7 @@ func (h *Handler) addToTrash(c echo.Context) error {
 	if err != nil {
 		return newResponse(c, http.StatusInternalServerError, err.Error())
 	}
-	var file fileInput
+	var file idInput
 	if err := c.Bind(&file); err != nil {
 		return newResponse(c, http.StatusBadRequest, "invalid input body")
 	}
@@ -484,7 +524,7 @@ func (h *Handler) deleteFromTrash(c echo.Context) error {
 	if err != nil {
 		return newResponse(c, http.StatusInternalServerError, err.Error())
 	}
-	var file fileInput
+	var file idInput
 	if err := c.Bind(&file); err != nil {
 		return newResponse(c, http.StatusBadRequest, "invalid input body")
 	}
@@ -510,4 +550,25 @@ func (h *Handler) deleteFromFolder(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "member deleted")
+}
+
+type member struct {
+	ID types.BinaryUUID `json:"id"`
+
+	FolderID types.BinaryUUID `json:"folder_id"`
+	FileID   types.BinaryUUID `json:"file_id"`
+}
+
+func (h *Handler) getMembership(c echo.Context) error {
+	folderID := c.QueryParam("folder")
+	fileID := c.QueryParam("file")
+	memberServ, err := h.services.Storages.GetByFolderFileID(types.ParseUUID(folderID), types.ParseUUID(fileID))
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, member{
+		ID:       memberServ.ID,
+		FolderID: memberServ.FolderID,
+		FileID:   memberServ.FileID,
+	})
 }

@@ -123,6 +123,13 @@ type Folder struct {
 	UserID types.BinaryUUID
 }
 
+type FolderFile struct {
+	ID types.BinaryUUID
+
+	FolderID types.BinaryUUID
+	FileID   types.BinaryUUID
+}
+
 type Auths interface {
 	SignUp(input UserInputSigUp) error
 	SignIn(input UserInputSigIn) (Tokens, error)
@@ -158,6 +165,11 @@ type Users interface {
 }
 
 type FileStorages interface {
+	GetFilesKBSum(userID types.BinaryUUID) int
+
+	GetByFolderFileID(folderID, fileID types.BinaryUUID) (FolderFile, error)
+	GetAllFolderFilessByFileID(userID, fileID types.BinaryUUID) ([][]Folder, error)
+
 	GetAllFiles(userID types.BinaryUUID) ([]File, error)
 	GetAllFilesByType(userID types.BinaryUUID, fileType domain.FileType) ([]File, error)
 	GetFile(userID, fileID types.BinaryUUID) (File, error)

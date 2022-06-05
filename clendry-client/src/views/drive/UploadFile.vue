@@ -378,8 +378,8 @@ export default defineComponent({
       })
     },
   },
-  mounted() {
-    this.getFolders();
+  async mounted() {
+    await this.getFolders();
   }
 });
 </script>

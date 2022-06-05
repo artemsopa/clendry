@@ -27,6 +27,46 @@ func NewFilesService(repoFiles repository.Files, repoFolderFiles repository.Fold
 	}
 }
 
+func (s *FilesService) GetFilesKBSum(userID types.BinaryUUID) int {
+	return s.repoFiles.GetFilesKBSum(userID)
+}
+
+func (s *FilesService) GetByFolderFileID(folderID, fileID types.BinaryUUID) (FolderFile, error) {
+	memberRepo, err := s.repoFolderFiles.GetByFolderFileID(folderID, fileID)
+	if err != nil {
+		return FolderFile{}, err
+	}
+	return FolderFile{
+		ID:       memberRepo.ID,
+		FolderID: memberRepo.FolderID,
+		FileID:   memberRepo.FileID,
+	}, nil
+}
+
+func (s *FilesService) GetAllFolderFilessByFileID(userID, fileID types.BinaryUUID) ([][]Folder, error) {
+	foldersRepo, err := s.repoFolderFiles.GetAllFoldersByFileID(userID, fileID)
+	if err != nil {
+		return [][]Folder{}, err
+	}
+	var folders [][]Folder
+	var typedFolder []Folder
+	for _, folderArr := range foldersRepo {
+		for _, folder := range folderArr {
+			typedFolder = append(typedFolder, Folder{
+				ID:        folder.ID,
+				Title:     folder.Title,
+				CreatedAt: folder.CreatedAt,
+				UserID:    folder.UserID,
+			})
+		}
+		folders = append(folders, typedFolder)
+		typedFolder = []Folder{}
+	}
+	return folders, nil
+}
+
+//GetAllNoFoldersByFileID(fileID types.BinaryUUID) ([]domain.FolderFile, error)
+
 func (s *FilesService) GetAllFiles(userID types.BinaryUUID) ([]File, error) {
 	var files []File
 	filesRepo, err := s.repoFiles.GetAllFilesByUserID(userID)

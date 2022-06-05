@@ -15,20 +15,13 @@
 
                             <div class="btn-group">
 
-                                <label class="dropdown-toggle searchbox" data-toggle="collapse" href="#collapseExample"
-                                    role="button" aria-expanded="false" aria-controls="collapseExample">
+                                <label style="width:400px" class="searchbox" role="button">
                                     <input class="dropdown-toggle search-query text search-input " type="text"
                                         v-model="selectedInput" placeholder="Type here to search...">
-                                    <span class="search-replace"></span>
-                                    <a class="search-link" href="#"><i class="ri-search-line"></i></a>
-                                    <!-- <span class="caret">icon</span> -->
-                                </label>
 
-                                <ul class="dropdown-menu collapse" id="collapseExample">
-                                    <li @click="selectedInput = 'PDFs'"><a href="#">
-                                            <div class="item"><i class="far fa-file-pdf bg-info"></i>PDFs</div>
-                                        </a></li>
-                                </ul>
+                                    <div @click="search(selectedInput)" class="search-link"><i
+                                            class="ri-search-line"></i></div>
+                                </label>
 
                             </div>
 
@@ -54,32 +47,6 @@
                                             <a href="#" class="search-link"><i class="las la-search"></i></a>
                                         </div>
                                     </form>
-                                </div>
-                            </li>
-                            <li class="nav-item nav-icon dropdown">
-                                <a href="#"
-                                    class="search-toggle dropdown-toggle                                                                                                                                                                                                                                                                                                                                                                                          "
-                                    id="dropdownMenuButton01" data-toggle="dropdown" aria-haspopup="true"
-                                    aria-expanded="false">
-                                    <i class="ri-question-line"></i>
-                                </a>
-                                <div class="iq-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton01">
-                                    <div class="card shadow-none m-0">
-                                        <div class="card-body p-0 ">
-                                            <div class="p-3">
-                                                <a href="#" class="iq-sub-card pt-0"><i
-                                                        class="ri-questionnaire-line"></i>Help</a>
-                                                <a href="#" class="iq-sub-card"><i
-                                                        class="ri-recycle-line"></i>Training</a>
-                                                <a href="#" class="iq-sub-card"><i
-                                                        class="ri-refresh-line"></i>Updates</a>
-                                                <a href="#" class="iq-sub-card"><i class="ri-service-line"></i>Terms and
-                                                    Policy</a>
-                                                <a href="#" class="iq-sub-card"><i class="ri-feedback-line"></i>Send
-                                                    Feedback</a>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </li>
                             <li class="nav-item nav-icon dropdown">
@@ -152,7 +119,7 @@ import axios from "axios";
 import { computed, defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import User from '../../models/user'
 
 export default defineComponent({
@@ -186,6 +153,12 @@ export default defineComponent({
         };
     },
     methods: {
+        ...mapActions(['setSearch']),
+        search(value: string) {
+            this.setSearch(value);
+            this.router.push('/search');
+            //location.reload();
+        },
         async getUser() {
             await axios.get<User>(`/profile`, {
                 withCredentials: true
@@ -193,7 +166,7 @@ export default defineComponent({
                 this.user = response.data;
                 this.avatar = this.user.nick.split('')[0].toUpperCase()
             }).catch(() => this.router.push("/auth/sign-in"));
-        }
+        },
     },
     computed: {
         ...mapGetters({

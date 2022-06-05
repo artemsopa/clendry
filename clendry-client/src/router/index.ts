@@ -10,13 +10,14 @@ const Dashboard = () => import('@/views/Dashboard.vue')
 //drive pages
 const UploadFile = () => import('@/views/drive/UploadFile.vue')
 
-const Recent = () => import('@/views/drive/Recent.vue')
 const Folder = () => import('@/views/drive/Folder.vue')
 const Images = () => import('@/views/drive/Images.vue')
 const Media = () => import('@/views/drive/Media.vue')
 const Files = () => import('@/views/drive/Files.vue')
 const Favourites = () => import('@/views/drive/Favourites.vue')
 const Trash = () => import('@/views/drive/Trash.vue')
+const Search = () => import('@/views/drive/Search.vue')
+const Plan = () => import('@/views/drive/Plan.vue')
 
 //auth elements
 const SignIn = () => import('@/views/auth/SignIn.vue')
@@ -28,12 +29,6 @@ const childRoute = () => [
     name: 'layout.dashboard',
     meta: {  name: 'Dashboard' },
     component: Dashboard
-  },
-  {
-    path: 'recent',
-    name: 'layout.recent',
-    meta: {  name: 'Recent' },
-    component: Recent
   },
   {
     path: 'folder/:id',
@@ -76,6 +71,18 @@ const childRoute = () => [
     name: 'layout.upload-file',
     meta: {  name: 'UploadFile' },
     component: UploadFile
+  },
+  {
+    path: 'search',
+    name: 'layout.search',
+    meta: {  name: 'Search' },
+    component: Search
+  },
+  {
+    path: 'plan',
+    name: 'layout.plan',
+    meta: {  name: 'Plan' },
+    component: Plan
   }
 ]
 

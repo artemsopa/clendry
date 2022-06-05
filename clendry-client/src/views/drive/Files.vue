@@ -17,13 +17,35 @@
               </div>
             </div>
           </div>
-          <div v-if="files?.length > 0" class="d-flex align-items-center">
-            <div class="list-grid-toggle mr-4" @click="change()">
-              <span class="icon icon-grid i-grid" v-if="data"><i class="ri-layout-grid-line font-size-20"></i></span>
-              <span class="icon i-list" v-else><i class="ri-list-check font-size-20"></i></span>
-              <span class="label label-list">List</span>
+          
+            <div v-if="files?.length > 0" class="card-header-toolbar d-flex align-items-center">
+              <div class="card-header-toolbar">
+                <div class="dropdown">
+                  <span class="dropdown-toggle dropdown-bg btn bg-white" id="dropdownMenuButton1"
+                    data-toggle="dropdown">
+                    Name<i class="ri-arrow-down-s-line ml-1"></i>
+                  </span>
+                  <div class="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton1">
+                    <div @click="sortDefault()" class="dropdown-item">Default</div>
+                    <div @click="sortAZ()" class="dropdown-item">Title A-Z</div>
+                    <div @click="sortZA()" class="dropdown-item">Title Z-A</div>
+                    <div @click="sortSizeLow()" class="dropdown-item">Size smaller</div>
+                    <div @click="sortSizeHigh()" class="dropdown-item">Size bigger</div>
+                  </div>
+                </div>
+              </div>
+                  <h1>⠀</h1>
+              <div class="card-header-toolbar">
+                <div>
+                  <div class="list-grid-toggle mr-4" @click="change()">
+                    <span class="icon icon-grid i-grid" v-if="data"><i
+                        class="ri-layout-grid-line font-size-20"></i></span>
+                    <span class="icon i-list" v-else><i class="ri-list-check font-size-20"></i></span>
+                    <span class="label label-list">List</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -80,6 +102,77 @@
                       <td>{{ getSize(list.size) }}</td>
                       <td>
 
+                        <!-- Modal -->
+                          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <div class="ojhjs d-flex align-items-center mb-3">
+                                    <div class="profile-icon iq-icon-box rounded-small bg-light svg-danger text-center">
+                                      <i class="ri-window-line text-primary"></i>
+                                    </div>
+                                    <div class="pl-3">
+                                      <h5 :title="list.title" class="txt-hide modal-title" id="exampleModalLabel">
+                                        {{ list.title }}</h5>
+                                      <p class="txt-hide mb-0">{{ list.id }}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="modal-body">
+                                  <h5>Click to remove from folder</h5>
+                                </div>
+
+                                <div v-if="folders[0].length || folders[0].length > 0">
+
+                                  <div class="jstfc">
+                                    <div class="fold" v-for="(folder, index) in folders[0]" :key="index">
+                                      <div @click="deleteFolder(index, folder, list.id)"
+                                        :class="'folder-item ' + getStyle(folder)">
+                                        <div class="icn">
+                                          <i class="ri-file-copy-line"></i>
+                                        </div>
+                                        <div>
+                                          {{ folder.title }}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="text-center" v-else>
+                                  <h6 style="margin-bottom:10px">No any selected folder...</h6>
+                                </div>
+
+                                <div class="modal-body">
+                                  <h5>Click to add to folder</h5>
+                                </div>
+                                <div v-if="folders[1].length || folders[1].length > 0">
+
+                                  <div class="jstfc">
+                                    <div class="fold" v-for="(folder, index) in folders[1]" :key="index">
+                                      <div @click="chooseFolder(index, folder, list.id)"
+                                        :class="'folder-item ' + getStyle(folder)">
+                                        <div class="icn">
+                                          <i class="ri-file-copy-line"></i>
+                                        </div>
+                                        <div>
+                                          {{ folder.title }}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="text-center" v-else>
+                                  <h6 style="margin-bottom:10px">No any created folder...</h6>
+                                </div>
+
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
                         <div class="opsss card-header-toolbar">
                           <div class="dropdown">
                             <span class="dropdown-toggle" id="dropdownMenuButton5" data-toggle="dropdown">
@@ -99,6 +192,15 @@
                               <div v-if="!list.isEdit" class="dropdown-item" @click="edit(list)">
                                 <i class="ri-pencil-fill mr-2"></i>edit
                               </div>
+                              <div v-if="!list.isEdit">
+                                  <div class="dropdown-item">
+                                    <!-- Button trigger modal -->
+                                    <div @click="getSelectedFolders(list.id)" type="button" data-toggle="modal"
+                                      data-target="#exampleModal">
+                                      <i class="las la-share-alt mr-2"></i>struct
+                                    </div>
+                                  </div>
+                                </div>
                               <hr style="margin-top:0px;margin-bottom:0px" v-if="!list.isEdit">
                               <div @click="addToFav(list.id)" v-if="!list.isEdit && !list.is_fav" class="dropdown-item">
                                 <i class="lar la-star mr-2"></i>like
@@ -132,6 +234,7 @@ import File from '@/components/lists/File.vue';
 import axios from "axios";
 import FileServ from "@/models/file";
 import { reactive } from "vue";
+import Folder from "../../models/folder";
 
 export default defineComponent({
   name: "Images",
@@ -152,9 +255,101 @@ export default defineComponent({
       data: true,
       files: [] as FileServ[],
       ext: "",
+      folders: [] as Folder[][],
+      ids: [] as any[],
     };
   },
   methods: {
+    async sortDefault() {
+      this.getAllFiles();
+    },
+    sortAZ() {
+      this.files = this.files.sort((a, b) => a.title.localeCompare(b.title));
+      },
+    sortZA() {
+      this.files = this.files.sort((a, b) => b.title.localeCompare(a.title));
+      },
+    sortSizeLow() {
+      this.files = this.files.sort((a, b) => {return a.size - b.size;});
+    },
+    sortSizeHigh() {
+      this.files = this.files.sort((a, b) => {return b.size - a.size;});
+    },
+    getStyle(folder: any) {
+      if (folder.iscurr) {
+        return "bg-success rounded mb-4";
+      }
+      return folder.color;
+    },
+    getRandomColor() {
+      let arr = ["bg-danger rounded mb-4", "bg-primary rounded mb-4 ", "bg-info rounded mb-4"];
+      let count = 0;
+      if (this.folders[1]) {
+        for (let i = 0; i < this.folders[1].length; i++) {
+          this.folders[1][i].color = arr[count];
+          count++;
+          if (count == 3) {
+            count = 0;
+          }
+        }
+      }
+
+      if (this.folders[0]) {
+        for (let i = 0; i < this.folders[0].length; i++) {
+          this.folders[0][i].color = "bg-success rounded mb-4";
+        }
+      }
+    },
+    async getSelectedFolders(id: string) {
+      console.log(id);
+      await axios.get<Folder[][]>(`/storage/files/folders/${id}`, {
+        withCredentials: true
+      }).then(response => {
+        if (response.data[0]) {
+          this.folders[0] = response.data[0]
+        }
+        else this.folders[0] = [];
+        if (response.data[1]) {
+          this.folders[1] = response.data[1]
+        }
+        else this.folders[1] = [];
+        // console.log(response.data);
+        // this.folders = response.data;
+        this.getRandomColor();
+      })
+    },
+    async chooseFolder(index: number, folder: Folder, id: string) {
+      folder.iscurr = true;
+      this.folders[0].push(folder);
+      this.folders[1].splice(index, 1);
+      try {
+        await axios.put("/storage/files/folder", {
+          folder_id: folder.id,
+          file_id: id,
+        }, {
+          withCredentials: true,
+        })
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async deleteFolder(index: number, folder: Folder, id: string) {
+      try {
+        folder.iscurr = false;
+        this.folders[1].push(folder);
+        this.folders[0].splice(index, 1);
+        this.getRandomColor();
+        const response = await axios.get(`/storage?folder=${folder.id}&file=${id}`, {
+          withCredentials: true
+        });
+        await axios.delete(`/storage/folders/member/${response.data.id}`, {
+          withCredentials: true
+        })
+
+      } catch (error) {
+        console.log(error);
+      }
+    },
     change() {
       this.data = !this.data;
     },
@@ -276,12 +471,55 @@ export default defineComponent({
     }
   },
   async mounted() {
+    this.folders.push([]);
+    this.folders.push([]);
     await this.getAllFiles();
   },
 });
 </script>
 
 <style lang="scss">
+.ojhjs {
+  margin-bottom: -2px !important;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.modal-body {
+  padding-left: 30px;
+}
+
+.txt-hide {
+  width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jstfc {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 10px;
+  margin-left: 30px;
+  margin-right: 30px;
+  padding-top: 10px;
+  margin-bottom: 10px;
+  background-color: #FAFAFA !important;
+}
+
+.folder-item {
+  padding: 5px 20px;
+  margin: 0px 10px;
+  display: flex;
+}
+
+.fold :hover {
+  cursor: pointer;
+}
+
 .file-title {
   max-width: 350px;
   white-space: nowrap;

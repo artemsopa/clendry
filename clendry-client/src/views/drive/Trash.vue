@@ -17,13 +17,35 @@
               </div>
             </div>
           </div>
-          <div v-if="files?.length > 0" class="d-flex align-items-center">
-            <div class="list-grid-toggle mr-4" @click="change()">
-              <span class="icon icon-grid i-grid" v-if="data"><i class="ri-layout-grid-line font-size-20"></i></span>
-              <span class="icon i-list" v-else><i class="ri-list-check font-size-20"></i></span>
-              <span class="label label-list">List</span>
+          
+            <div v-if="files?.length > 0" class="card-header-toolbar d-flex align-items-center">
+              <div class="card-header-toolbar">
+                <div class="dropdown">
+                  <span class="dropdown-toggle dropdown-bg btn bg-white" id="dropdownMenuButton1"
+                    data-toggle="dropdown">
+                    Name<i class="ri-arrow-down-s-line ml-1"></i>
+                  </span>
+                  <div class="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton1">
+                    <div @click="sortDefault()" class="dropdown-item">Default</div>
+                    <div @click="sortAZ()" class="dropdown-item">Title A-Z</div>
+                    <div @click="sortZA()" class="dropdown-item">Title Z-A</div>
+                    <div @click="sortSizeLow()" class="dropdown-item">Size smaller</div>
+                    <div @click="sortSizeHigh()" class="dropdown-item">Size bigger</div>
+                  </div>
+                </div>
+              </div>
+                  <h1>⠀</h1>
+              <div class="card-header-toolbar">
+                <div>
+                  <div class="list-grid-toggle mr-4" @click="change()">
+                    <span class="icon icon-grid i-grid" v-if="data"><i
+                        class="ri-layout-grid-line font-size-20"></i></span>
+                    <span class="icon i-list" v-else><i class="ri-list-check font-size-20"></i></span>
+                    <span class="label label-list">List</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -35,7 +57,8 @@
             <div class="card-body image-thumb">
               <div class="mb-4 text-center p-3 rounded iq-thumb">
                 <div class="iq-image-overlay"></div>
-                <a :href="list.url" target="_blank"><img :src="getPicture(list)" class="img-cnt img-fluid" :alt="'image' + index"></a>
+                <a :href="list.url" target="_blank"><img :src="getPicture(list)" class="img-cnt img-fluid"
+                    :alt="'image' + index"></a>
               </div>
               <h6 :title="list.title" class="file-title">{{ list.title }}</h6>
             </div>
@@ -138,40 +161,55 @@ export default defineComponent({
     };
   },
   methods: {
+    async sortDefault() {
+      this.getAllFiles();
+    },
+    sortAZ() {
+      this.files = this.files.sort((a, b) => a.title.localeCompare(b.title));
+      },
+    sortZA() {
+      this.files = this.files.sort((a, b) => b.title.localeCompare(a.title));
+      },
+    sortSizeLow() {
+      this.files = this.files.sort((a, b) => {return a.size - b.size;});
+    },
+    sortSizeHigh() {
+      this.files = this.files.sort((a, b) => {return b.size - a.size;});
+    },
     change() {
       this.data = !this.data;
     },
     getPicture(file: FileServ) {
       let ext = file.title.split(".").pop();
       ext = ext!.toUpperCase();
-      if(ext =="DOC" || ext == "DOCX") {
+      if (ext == "DOC" || ext == "DOCX") {
         return require("@/assets/ext/doc.png")
       }
-      if(ext =="EXE") {
+      if (ext == "EXE") {
         return require("@/assets/ext/exe.png")
       }
-      if(ext =="ZIP") {
+      if (ext == "ZIP") {
         return require("@/assets/ext/zip.png")
       }
-      if(ext =="PDF") {
+      if (ext == "PDF") {
         return require("@/assets/ext/pdf.png")
       }
-      if(ext =="PPT" || ext == "PPTX") {
+      if (ext == "PPT" || ext == "PPTX") {
         return require("@/assets/ext/ppt.png")
       }
-      if(ext =="XML") {
+      if (ext == "XML") {
         return require("@/assets/ext/xml.png")
       }
-      if(ext =="HTML") {
+      if (ext == "HTML") {
         return require("@/assets/ext/html.png")
       }
-      if(ext =="CSS") {
+      if (ext == "CSS") {
         return require("@/assets/ext/css.png")
       }
-      if(ext =="JS") {
+      if (ext == "JS") {
         return require("@/assets/ext/javascript.png")
       }
-      if(ext =="JSON") {
+      if (ext == "JSON") {
         return require("@/assets/ext/json-file.png")
       }
       return require("@/assets/ext/136549.png")
@@ -236,15 +274,15 @@ export default defineComponent({
     async retrieveFile(id: string) {
       await axios.put(`/storage/files/trash/remove`, {
         id: id
-      },{
+      }, {
         withCredentials: true
       });
       await this.getAllFiles();
     },
     async deleteFile(file: FileServ) {
-      await axios.delete(`/storage/files/${file.id}`, {
+      await axios.delete(`/storage/files?id=${file.id}`, {
         withCredentials: true
-      });
+      })
       await this.getAllFiles();
     }
   },

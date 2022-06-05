@@ -112,13 +112,6 @@
             </ul>
           </li>
           <li class="">
-            <router-link to="/recent" class="iq-waves-effect" data-toggle="collapse" data-target="#recent"
-              aria-expanded="false" aria-controls="recent"><i
-                class="las la-stopwatch iq-arrow-left"></i><span>Recent</span>
-              <small class=""></small>
-            </router-link>
-          </li>
-          <li class="">
             <router-link to="/images" class="iq-waves-effect" data-toggle="collapse" data-target="#images"
               aria-expanded="false" aria-controls="images"><i class="las la-image"></i><span>Images</span>
               <small class=""></small>
@@ -155,10 +148,10 @@
       </nav>
       <div class="sidebar-bottom">
         <h4 class="mb-3"><i class="las la-cloud mr-2"></i>Storage</h4>
-        <p>17.1 / 20 GB Used</p>
-        <Progressbar :value="67" color="primary" class="mb-3" midclass="iq-progress progress-1" />
-        <p>75% Full - 3.9 GB Free</p>
-        <a href="#" class="btn btn-outline-primary view-more mt-4">Buy Storage</a>
+        <p>{{usedGB[0]}} / 20 GB Used</p>
+        <Progressbar :value="usedGB[1]" color="primary" class="mb-3" midclass="iq-progress progress-1" />
+        <p>{{ usedGB[1] }}% Full - {{20 - usedGB[0]}} GB Free</p>
+        <router-link to="/plan" class="btn btn-outline-primary view-more mt-4">Try Another Plan</router-link>
       </div>
       <div class="p-3"></div>
     </div>
@@ -171,7 +164,7 @@ import { defineComponent, reactive } from "vue";
 import Progressbar from "../progressbar/Progressbar.vue";
 import { mapGetters } from "vuex";
 import { core } from "../../config/pluginInit";
-import Folder from "../../models/folder"
+import Folder from "../../models/folder";
 
 export default defineComponent({
   name: "Sidebar",
@@ -187,13 +180,18 @@ export default defineComponent({
   data() {
     return {
       homeurl: "",
-      folders: [] as Folder[]
+      folders: [] as Folder[],
+      usedGB: [] as number[]
     };
   },
-  mounted() {
+  async mounted() {
     core.SmoothScrollbar();
     core.changesidebar();
-    this.getAllFolders();
+    await this.getAllFolders();
+    let kb = await this.getKB();
+    this.usedGB[0] = this.getSize(kb);
+    this.usedGB[1] = Math.round((this.usedGB[0] / 20) * 100);
+    this.usedGB = this.usedGB.slice();
   },
   destroyed() {
     core.SmoothScrollbar();
@@ -203,6 +201,15 @@ export default defineComponent({
     Progressbar,
   },
   methods: {
+    async getKB() {
+      const response = await axios.get(`/storage/kb`, {
+        withCredentials: true
+      });
+      return response.data;
+    },
+    getSize(size: number): number {
+      return Number((size / (1024 * 1000000)).toFixed(2));
+    },
     edit(folder: Folder) {
       for (let i = 0; i < this.folders.length; i++) {
         this.folders[i].isEdit = false;

@@ -18,6 +18,14 @@ func NewFilesRepo(db *gorm.DB) *FilesRepo {
 	}
 }
 
+func (r *FilesRepo) GetFilesKBSum(userID types.BinaryUUID) int {
+	var sum int
+	if err := r.db.Table("files").Select("sum(size)").Where("user_id = ?", userID).Row().Scan(&sum); err != nil {
+		return 0
+	}
+	return sum
+}
+
 func (r *FilesRepo) GetAllFilesByUserID(userID types.BinaryUUID) ([]domain.File, error) {
 	var file []domain.File
 	if err := r.db.Where("user_id = ? AND is_trash = ?", userID, false).Find(&file).Error; err != nil {

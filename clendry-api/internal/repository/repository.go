@@ -51,6 +51,8 @@ type Sessions interface {
 // }
 
 type Files interface {
+	GetFilesKBSum(userID types.BinaryUUID) int
+
 	GetAllFilesByUserID(userID types.BinaryUUID) ([]domain.File, error)
 	GetFileByUserID(userID, fileID types.BinaryUUID) (domain.File, error)
 	GetFileByFolder(userID, fileID types.BinaryUUID) (domain.File, error)
@@ -96,7 +98,9 @@ type Folders interface {
 }
 
 type FolderFiles interface {
+	GetByFolderFileID(folderID, fileID types.BinaryUUID) (domain.FolderFile, error)
 	GetAllFilesByFolderID(folderID types.BinaryUUID) ([]domain.FolderFile, error)
+	GetAllFoldersByFileID(userID, fileID types.BinaryUUID) ([][]domain.Folder, error)
 	CreateFolderFile(member domain.FolderFile) error
 	DeleteByFolderFileID(memberID types.BinaryUUID) error
 }
