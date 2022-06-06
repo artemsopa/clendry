@@ -18,35 +18,36 @@
                             </div>
                         </div>
                     </div>
-                    
-            <div v-if="files?.length > 0" class="card-header-toolbar d-flex align-items-center">
-              <div class="card-header-toolbar">
-                <div class="dropdown">
-                  <span class="dropdown-toggle dropdown-bg btn bg-white" id="dropdownMenuButton1"
-                    data-toggle="dropdown">
-                    Name<i class="ri-arrow-down-s-line ml-1"></i>
-                  </span>
-                  <div class="dropdown-menu dropdown-menu-right shadow-none" aria-labelledby="dropdownMenuButton1">
-                    <div @click="sortDefault()" class="dropdown-item">Default</div>
-                    <div @click="sortAZ()" class="dropdown-item">Title A-Z</div>
-                    <div @click="sortZA()" class="dropdown-item">Title Z-A</div>
-                    <div @click="sortSizeLow()" class="dropdown-item">Size smaller</div>
-                    <div @click="sortSizeHigh()" class="dropdown-item">Size bigger</div>
-                  </div>
-                </div>
-              </div>
-                  <h1>⠀</h1>
-              <div class="card-header-toolbar">
-                <div>
-                  <div class="list-grid-toggle mr-4" @click="change()">
-                    <span class="icon icon-grid i-grid" v-if="data"><i
-                        class="ri-layout-grid-line font-size-20"></i></span>
-                    <span class="icon i-list" v-else><i class="ri-list-check font-size-20"></i></span>
-                    <span class="label label-list">List</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+                    <div v-if="files?.length > 0" class="card-header-toolbar d-flex align-items-center">
+                        <div class="card-header-toolbar">
+                            <div class="dropdown">
+                                <span class="dropdown-toggle dropdown-bg btn bg-white" id="dropdownMenuButton1"
+                                    data-toggle="dropdown">
+                                    Name<i class="ri-arrow-down-s-line ml-1"></i>
+                                </span>
+                                <div class="dropdown-menu dropdown-menu-right shadow-none"
+                                    aria-labelledby="dropdownMenuButton1">
+                                    <div @click="sortDefault()" class="dropdown-item">Default</div>
+                                    <div @click="sortAZ()" class="dropdown-item">Title A-Z</div>
+                                    <div @click="sortZA()" class="dropdown-item">Title Z-A</div>
+                                    <div @click="sortSizeLow()" class="dropdown-item">Size smaller</div>
+                                    <div @click="sortSizeHigh()" class="dropdown-item">Size bigger</div>
+                                </div>
+                            </div>
+                        </div>
+                        <h1>⠀</h1>
+                        <div class="card-header-toolbar">
+                            <div>
+                                <div class="list-grid-toggle mr-4" @click="change()">
+                                    <span class="icon icon-grid i-grid" v-if="data"><i
+                                            class="ri-layout-grid-line font-size-20"></i></span>
+                                    <span class="icon i-list" v-else><i class="ri-list-check font-size-20"></i></span>
+                                    <span class="label label-list">List</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -201,11 +202,10 @@
                                                                 @click="cancel(list)"><i
                                                                     class="ri-delete-bin-6-fill mr-2"></i>cancel</div>
 
-                                                            <a v-if="!list.isEdit" :href="list.url" target="_blank"
-                                                                :download="list.title">
+                                                            <div v-if="!list.isEdit" @click="downloadFile(list)">
                                                                 <div class="dropdown-item"><i
                                                                         class="ri-download-fill mr-2"></i>download</div>
-                                                            </a>
+                                                            </div>
 
                                                             <div v-if="!list.isEdit" class="dropdown-item"
                                                                 @click="edit(list)">
@@ -288,21 +288,21 @@ export default defineComponent({
         };
     },
     methods: {
-    async sortDefault() {
-        this.sortBySearch(this.searchVal);
-    },
-    sortAZ() {
-      this.files = this.files.sort((a, b) => a.title.localeCompare(b.title));
-      },
-    sortZA() {
-      this.files = this.files.sort((a, b) => b.title.localeCompare(a.title));
-      },
-    sortSizeLow() {
-      this.files = this.files.sort((a, b) => {return a.size - b.size;});
-    },
-    sortSizeHigh() {
-      this.files = this.files.sort((a, b) => {return b.size - a.size;});
-    },
+        async sortDefault() {
+            this.sortBySearch(this.searchVal);
+        },
+        sortAZ() {
+            this.files = this.files.sort((a, b) => a.title.localeCompare(b.title));
+        },
+        sortZA() {
+            this.files = this.files.sort((a, b) => b.title.localeCompare(a.title));
+        },
+        sortSizeLow() {
+            this.files = this.files.sort((a, b) => { return a.size - b.size; });
+        },
+        sortSizeHigh() {
+            this.files = this.files.sort((a, b) => { return b.size - a.size; });
+        },
         getStyle(folder: any) {
             if (folder.iscurr) {
                 return "bg-success rounded mb-4";
@@ -431,11 +431,17 @@ export default defineComponent({
             this.files.splice(index, 1);
             return this.files
         },
-        downloadFile(file: FileServ) {
-            let link = document.createElement('a');
-            link.setAttribute('href', file.url);
-            link.setAttribute('download', file.title);
+        async downloadFile(file: FileServ) {
+            const response = await axios.get(file.url, { responseType: "blob" });
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = file.title;
             link.click();
+            URL.revokeObjectURL(link.href);
+            await axios.put(`/profile/downloads`, {}, {
+                withCredentials: true
+            });
         },
         edit(file: FileServ) {
             for (let i = 0; i < this.files.length; i++) {
@@ -470,9 +476,12 @@ export default defineComponent({
             await axios.get(`/storage/files/`, {
                 withCredentials: true
             }).then(response => {
-                this.files = response!.data;
-                this.tempFiles = response!.data;
-                this.sortBySearch(this.searchVal);
+                if (response.data) {
+                    this.files = response!.data;
+                    this.tempFiles = response!.data;
+                    this.sortBySearch(this.searchVal);
+                } else this.files = [];
+
             })
         },
         async addToFav(id: string) {

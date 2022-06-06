@@ -129,3 +129,17 @@ func (r *UsersRepo) Delete(userID types.BinaryUUID) error {
 	err := r.db.Delete(&domain.User{}, userID).Error
 	return err
 }
+
+func (r *UsersRepo) UpdateDownloads(userID types.BinaryUUID) error {
+	user := domain.User{}
+	if err := r.db.Where("id = ?", userID).First(&user).Error; err != nil {
+		return errors.New("user not found")
+	}
+	err := r.db.Model(&domain.User{}).Where("id = ?", userID).Update("downloads", user.Downloads+1).Error
+	return err
+}
+
+func (r *UsersRepo) UpdateMemory(userID types.BinaryUUID, memory uint) error {
+	err := r.db.Model(&domain.User{}).Where("id = ?", userID).Update("memory", memory).Error
+	return err
+}

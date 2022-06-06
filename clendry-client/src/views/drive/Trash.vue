@@ -268,7 +268,9 @@ export default defineComponent({
       await axios.get(`/storage/files/trash/`, {
         withCredentials: true
       }).then(response => {
+        if(response.data) {
         this.files = response!.data;
+        } else this.files = [];
       })
     },
     async retrieveFile(id: string) {

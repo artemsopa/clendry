@@ -36,9 +36,12 @@ func (s *ProfilesService) GetProfile(userID types.BinaryUUID) (UserInfo, error) 
 	// 	return UserInfo{}, err
 	// }
 	return UserInfo{
-		ID:    user.ID,
-		Nick:  user.Nick,
-		Email: user.Email,
+		ID:        user.ID,
+		Nick:      user.Nick,
+		Email:     user.Email,
+		Uploads:   user.Uploads,
+		Downloads: user.Downloads,
+		Memory:    user.Memory,
 		// Avatar: s.files.GetObjectLink(file.Title),
 	}, nil
 }
@@ -92,5 +95,15 @@ func (s *ProfilesService) UploadAvatar(ctx context.Context, file File) error {
 
 func (s *ProfilesService) ChangeAvatarByFileID(userID, fileID types.BinaryUUID) error {
 	err := s.repoFiles.ChangeAvatarByUserID(userID, fileID)
+	return err
+}
+
+func (s *ProfilesService) UpdateDownloads(userID types.BinaryUUID) error {
+	err := s.repoUsers.UpdateDownloads(userID)
+	return err
+}
+
+func (s *ProfilesService) UpdateMemory(userID types.BinaryUUID, memory uint) error {
+	err := s.repoUsers.UpdateMemory(userID, memory)
 	return err
 }

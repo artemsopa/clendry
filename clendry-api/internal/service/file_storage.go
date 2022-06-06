@@ -158,6 +158,10 @@ func (s *FilesService) UploadFile(ctx context.Context, userID string, file File)
 	if err != nil {
 		return types.BinaryUUID{}, err
 	}
+	err = s.repoFiles.UpdateUploads(types.ParseUUID(userID))
+	if err != nil {
+		return types.BinaryUUID{}, err
+	}
 	return id, nil
 }
 

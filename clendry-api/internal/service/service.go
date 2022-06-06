@@ -13,15 +13,18 @@ import (
 )
 
 type UserInfo struct {
-	ID       types.BinaryUUID
-	Nick     string
-	Email    string
-	Avatar   string
-	BlockTo  bool
-	BlockBy  bool
-	Sent     bool
-	Incoming bool
-	Friend   bool
+	ID        types.BinaryUUID
+	Nick      string
+	Email     string
+	Uploads   uint
+	Downloads uint
+	Memory    uint
+	Avatar    string
+	BlockTo   bool
+	BlockBy   bool
+	Sent      bool
+	Incoming  bool
+	Friend    bool
 }
 
 type UserInputSigUp struct {
@@ -143,6 +146,9 @@ type Profiles interface {
 
 	UploadAvatar(ctx context.Context, file File) error
 	ChangeAvatarByFileID(userID, fileID types.BinaryUUID) error
+
+	UpdateDownloads(userID types.BinaryUUID) error
+	UpdateMemory(userID types.BinaryUUID, memory uint) error
 }
 
 type Users interface {

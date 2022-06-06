@@ -2,6 +2,7 @@ package v1
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/artomsopun/clendry/clendry-api/internal/service"
 	"github.com/artomsopun/clendry/clendry-api/pkg/types"
@@ -15,14 +16,19 @@ func (h *Handler) initProfilesRoutes(api *echo.Group) {
 		profile.PUT("/password", h.changePassword)
 		//profile.PUT("/avatar", h.changeAvatar)
 		profile.DELETE("", h.deleteProfile)
+		profile.PUT("/downloads", h.updateDownloads)
+		profile.PUT("/memory", h.updateMemory)
 	}
 }
 
 type userInfo struct {
-	ID     types.BinaryUUID `json:"id"`
-	Nick   string           `json:"nick"`
-	Email  string           `json:"email"`
-	Avatar string           `json:"avatar"`
+	ID        types.BinaryUUID `json:"id"`
+	Nick      string           `json:"nick"`
+	Email     string           `json:"email"`
+	Avatar    string           `json:"avatar"`
+	Uploads   uint             `json:"uploads"`
+	Downloads uint             `json:"downloads"`
+	Memory    uint             `json:"memory"`
 }
 
 func (h *Handler) getProfile(c echo.Context) error {
@@ -36,10 +42,13 @@ func (h *Handler) getProfile(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, userInfo{
-		ID:     user.ID,
-		Nick:   user.Nick,
-		Email:  user.Email,
-		Avatar: user.Avatar,
+		ID:        user.ID,
+		Nick:      user.Nick,
+		Email:     user.Email,
+		Avatar:    user.Avatar,
+		Uploads:   user.Uploads,
+		Downloads: user.Downloads,
+		Memory:    user.Memory,
 	})
 }
 
@@ -145,4 +154,33 @@ func (h *Handler) deleteProfile(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "profile deleted")
+}
+
+func (h *Handler) updateDownloads(c echo.Context) error {
+	userID, err := getUserId(c)
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+	err = h.services.Profiles.UpdateDownloads(userID)
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "downloads updated")
+}
+
+func (h *Handler) updateMemory(c echo.Context) error {
+	userID, err := getUserId(c)
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+	memoryStr := c.QueryParam("memory")
+
+	memory, _ := strconv.Atoi(memoryStr)
+	err = h.services.Profiles.UpdateMemory(userID, uint(memory))
+	if err != nil {
+		return newResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "downloads updated")
 }

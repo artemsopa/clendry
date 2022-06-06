@@ -98,6 +98,15 @@ func (r *FilesRepo) Create(file domain.File) (types.BinaryUUID, error) {
 	return file.ID, nil
 }
 
+func (r *FilesRepo) UpdateUploads(userID types.BinaryUUID) error {
+	user := domain.User{}
+	if err := r.db.Where("id = ?", userID).First(&user).Error; err != nil {
+		return errors.New("user not found")
+	}
+	err := r.db.Model(&domain.User{}).Where("id = ?", userID).Update("uploads", user.Uploads+1).Error
+	return err
+}
+
 func (r *FilesRepo) DeleteByID(userID, fileID types.BinaryUUID) error {
 	err := r.db.Where("id = ? AND user_id = ?", fileID, userID).Delete(&domain.File{}).Error
 	return err

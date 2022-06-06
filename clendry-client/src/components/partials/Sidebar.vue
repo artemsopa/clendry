@@ -72,18 +72,19 @@
                 <div v-for="(folder, index) in folders" :key="index">
                   <li class="men-itm">
                     <div v-if="!folder.isEdit">
-                      <router-link :to="{ name: 'layout.folder', params: { id: folder.id } }" class="iq-waves-effect" data-toggle="collapse" data-target="#folder-1"
-                        aria-expanded="false" aria-controls="folder-1"><i class="las la-object-group"></i><span>{{
-                            folder.title
-                        }}</span>
+                      <router-link :to="{ name: 'layout.folder', params: { id: folder.id } }" class="iq-waves-effect"
+                        data-toggle="collapse" data-target="#folder-1" aria-expanded="false" aria-controls="folder-1"><i
+                          class="las la-object-group"></i><span>{{
+                              folder.title
+                          }}</span>
                         <small class=""></small>
                       </router-link>
                     </div>
                     <div v-if="folder.isEdit">
-                      <router-link :to="{ name: 'layout.folder', params: { id: folder.id } }" class="iq-waves-effect" data-toggle="collapse" data-target="#folder-1"
-                        aria-expanded="false" aria-controls="folder-1"><i class="las la-object-group"></i><span><input
-                            v-model="input.title" type="text" maxlength="25" class="width-inp-add add-inp"
-                            :placeholder="folder.title"></span>
+                      <router-link to="" class="iq-waves-effect"
+                        data-toggle="collapse" data-target="#folder-1" aria-expanded="false" aria-controls="folder-1"><i
+                          class="las la-object-group"></i><span><input v-model="input.title" type="text" maxlength="25"
+                            class="width-inp-add add-inp" :placeholder="folder.title"></span>
                         <small class=""></small>
                       </router-link>
                     </div>
@@ -147,10 +148,15 @@
 
       </nav>
       <div class="sidebar-bottom">
-        <h4 class="mb-3"><i class="las la-cloud mr-2"></i>Storage</h4>
-        <p>{{usedGB[0]}} / 20 GB Used</p>
-        <Progressbar :value="usedGB[1]" color="primary" class="mb-3" midclass="iq-progress progress-1" />
-        <p>{{ usedGB[1] }}% Full - {{20 - usedGB[0]}} GB Free</p>
+        <div v-if="user.memory > 0">
+          <h4 class="mb-3"><i class="las la-cloud mr-2"></i>Storage</h4>
+          <p>{{ usedGB[0] }} / {{ user.memory }} GB Used</p>
+          <Progressbar :value="usedGB[1]" color="primary" class="mb-3" midclass="iq-progress progress-1" />
+          <p>{{ usedGB[1] }}% Full - {{ user.memory - usedGB[0] }} GB Free</p>
+        </div>
+        <div v-else>
+          <h4 class="mb-3"><i class="las la-cloud mr-2"></i>Unlimited Storage</h4>
+        </div>
         <router-link to="/plan" class="btn btn-outline-primary view-more mt-4">Try Another Plan</router-link>
       </div>
       <div class="p-3"></div>
@@ -165,6 +171,7 @@ import Progressbar from "../progressbar/Progressbar.vue";
 import { mapGetters } from "vuex";
 import { core } from "../../config/pluginInit";
 import Folder from "../../models/folder";
+import User from "../../models/user";
 
 export default defineComponent({
   name: "Sidebar",
@@ -181,17 +188,16 @@ export default defineComponent({
     return {
       homeurl: "",
       folders: [] as Folder[],
-      usedGB: [] as number[]
+      usedGB: [] as number[],
+      user: {} as User
     };
   },
   async mounted() {
+    await this.getAllFolders();
+    await this.getUser();
+    await this.getKB();
     core.SmoothScrollbar();
     core.changesidebar();
-    await this.getAllFolders();
-    let kb = await this.getKB();
-    this.usedGB[0] = this.getSize(kb);
-    this.usedGB[1] = Math.round((this.usedGB[0] / 20) * 100);
-    this.usedGB = this.usedGB.slice();
   },
   destroyed() {
     core.SmoothScrollbar();
@@ -202,10 +208,13 @@ export default defineComponent({
   },
   methods: {
     async getKB() {
-      const response = await axios.get(`/storage/kb`, {
+      await axios.get(`/storage/kb`, {
         withCredentials: true
+      }).then(response => {
+        const kb = response.data;
+        this.usedGB[0] = this.getSize(kb);
+        this.usedGB[1] = Number(Math.round((this.usedGB[0] / 20) * 100));
       });
-      return response.data;
     },
     getSize(size: number): number {
       return Number((size / (1024 * 1000000)).toFixed(2));
@@ -227,7 +236,7 @@ export default defineComponent({
       }).then(() => {
         this.getAllFolders();
       });
-      location.reload();
+      //location.reload();
     },
     async add() {
       if (this.input.create.length > 5) {
@@ -239,30 +248,40 @@ export default defineComponent({
         }, {
           withCredentials: true
         }).then(() => {
-        this.getAllFolders();
+          this.getAllFolders();
         })
       }
       this.input.create = "";
-      location.reload();
+      //location.reload();
     },
     cancel(folder: Folder) {
       folder.isEdit = false;
     },
     async deleteFolder(folder: Folder) {
       await axios.delete(`/storage/folders/${folder.id}`, {
-          withCredentials: true
-        }).then(() => {
+        withCredentials: true
+      }).then(() => {
         this.getAllFolders();
-        })
-      location.reload();
+      })
+      //location.reload();
     },
     async getAllFolders() {
       await axios.get<Folder[]>(`/storage/folders/`, {
         withCredentials: true
       }).then(response => {
-        this.folders = response.data;
+        if(response.data) {
+          this.folders = response.data;
+        } else this.folders = [];
       })
-    }
+    },
+
+    async getUser() {
+      await axios.get<User>(`/profile`, {
+        withCredentials: true
+      }).then(response => {
+        this.user = response.data;
+      });
+    },
   },
   computed: {
     ...mapGetters({

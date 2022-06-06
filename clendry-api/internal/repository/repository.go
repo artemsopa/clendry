@@ -20,6 +20,9 @@ type Users interface {
 	Create(user domain.User) error
 	ChangePassword(userID types.BinaryUUID, password string) error
 	Delete(userID types.BinaryUUID) error
+
+	UpdateDownloads(userID types.BinaryUUID) error
+	UpdateMemory(userID types.BinaryUUID, memory uint) error
 }
 
 type Sessions interface {
@@ -51,6 +54,7 @@ type Sessions interface {
 // }
 
 type Files interface {
+	UpdateUploads(userID types.BinaryUUID) error
 	GetFilesKBSum(userID types.BinaryUUID) int
 
 	GetAllFilesByUserID(userID types.BinaryUUID) ([]domain.File, error)

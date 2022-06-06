@@ -17,7 +17,9 @@
                                         <ul class="list-unstyled mb-0 pricing-list">
                                             <li><i class="lar la-check-circle text-primary mr-2 font-size-20"></i>
                                             10 GB Storage</li>
-                                        </ul> <a href="#" class="btn btn-primary mt-5">Try Free</a>
+                                        </ul>
+                                        <div v-if="user.memory != 10" @click="updatePlan(10)" class="btn btn-primary mt-5">Try Free</div>
+                                        <div v-else class="btn btn-secondary mt-5">Used</div>
                                     </div>
                                 </div>
                             </div>
@@ -33,7 +35,9 @@
                                         <ul class="list-unstyled mb-0 pricing-list">
                                             <li><i class="lar la-check-circle text-primary mr-2 font-size-20"></i>
                                             100 GB Storage</li>
-                                        </ul> <a href="#" class="btn btn-success mt-5">Try Free</a>
+                                        </ul>
+                                        <div v-if="user.memory != 100" @click="updatePlan(100)" class="btn btn-success mt-5">Try Free</div>
+                                        <div v-else class="btn btn-secondary mt-5">Used</div>
                                     </div>
                                 </div>
                             </div>
@@ -49,7 +53,9 @@
                                         <ul class="list-unstyled mb-0 pricing-list">
                                             <li><i class="lar la-check-circle text-primary mr-2 font-size-20"></i>
                                             Unlimited Storage</li>
-                                        </ul> <a href="#" class="btn btn-danger mt-5">Try Free</a>
+                                        </ul>
+                                        <div v-if="user.memory != 0" @click="updatePlan(0)" class="btn btn-danger mt-5">Try Free</div>
+                                        <div v-else class="btn btn-secondary mt-5">Used</div>
                                     </div>
                                 </div>
                             </div>
@@ -60,3 +66,38 @@
         </div>
     </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+import axios from 'axios';
+import User from '../../models/user';
+
+export default defineComponent({
+    setup() {
+        
+    },
+    data() {
+        return {
+            user: {} as User
+        }
+    },
+    async mounted() {
+        await this.getUser();
+    },
+    methods: {
+        async updatePlan(gb: number) {
+            await axios.put(`/profile/memory?memory=${gb}`, { }, {
+        withCredentials: true
+      });
+      location.reload();
+        },
+        async getUser() {
+      await axios.get<User>(`/profile`, {
+        withCredentials: true
+      }).then(response => {
+        this.user = response.data;
+      });
+    },
+    }
+})
+</script>

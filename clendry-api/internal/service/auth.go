@@ -47,6 +47,7 @@ func (s *AuthService) SignUp(input UserInputSigUp) error {
 		Nick:     input.Nick,
 		Email:    input.Email,
 		Password: passwordHash,
+		Memory:   10,
 	}
 
 	if err := s.repoUser.Create(user); err != nil {

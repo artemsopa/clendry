@@ -9,9 +9,12 @@ import (
 type User struct {
 	ID types.BinaryUUID `gorm:"primary_key;default:(UUID_TO_BIN(UUID()))"`
 
-	Nick     string `gorm:"column:nick"`
-	Email    string `gorm:"column:email"`
-	Password string `gorm:"column:password"`
+	Nick      string `gorm:"column:nick"`
+	Email     string `gorm:"column:email"`
+	Password  string `gorm:"column:password"`
+	Uploads   uint   `gorm:"column:uploads"`
+	Downloads uint   `gorm:"column:downloads"`
+	Memory    uint   `gorm:"column:memory"`
 
 	Session Session `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 	//SentReqs       []FriendRequest `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`

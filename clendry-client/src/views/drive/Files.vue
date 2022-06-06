@@ -185,9 +185,9 @@
                               <div v-if="list.isEdit" class="dropdown-item" @click="cancel(list)"><i
                                   class="ri-delete-bin-6-fill mr-2"></i>cancel</div>
                               
-                              <a v-if="!list.isEdit" :href="list.url" target="_blank" :download="list.title">
+                              <div v-if="!list.isEdit" @click="downloadFile(list)">
                                 <div class="dropdown-item"><i class="ri-download-fill mr-2"></i>download</div>
-                              </a>
+                              </div>
 
                               <div v-if="!list.isEdit" class="dropdown-item" @click="edit(list)">
                                 <i class="ri-pencil-fill mr-2"></i>edit
@@ -403,11 +403,17 @@ export default defineComponent({
       this.files.splice(index, 1);
       return this.files
     },
-    downloadFile(file: FileServ) {
-      let link = document.createElement('a');
-      link.setAttribute('href', file.url);
-      link.setAttribute('download', file.title);
+    async downloadFile(file: FileServ) {
+      const response = await axios.get(file.url, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = file.title;
       link.click();
+      URL.revokeObjectURL(link.href);
+      await axios.put(`/profile/downloads`, {}, {
+        withCredentials: true
+      });
     },
     edit(file: FileServ) {
       for (let i = 0; i < this.files.length; i++) {
@@ -442,7 +448,9 @@ export default defineComponent({
       await axios.get(`/storage/files/other`, {
         withCredentials: true
       }).then(response => {
+        if(response.data) {
         this.files = response!.data;
+        } else this.files = [];
       })
     },
     async addToFav(id: string) {

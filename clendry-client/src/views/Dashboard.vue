@@ -60,7 +60,7 @@
                                     </div>
                                     <div class="media-body ml-3">
                                         <p class="mb-0">Downloads</p>
-                                        <h5>2</h5>
+                                        <h5>{{user.downloads}}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -71,7 +71,7 @@
                                     </div>
                                     <div class="media-body ml-3">
                                         <p class="mb-0">Uploads</p>
-                                        <h5>23</h5>
+                                        <h5>{{user.uploads}}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -84,11 +84,6 @@
                     <div class="card-header d-flex justify-content-between pb-0">
                         <div class="header-title">
                             <h4 class="card-title">Storage</h4>
-                        </div>
-                    </div>
-                    <div class="card-header d-flex justify-content-between pb-0">
-                        <div class="header-title">
-                            <p class="card-title">Get your uploading statistics by months!</p>
                         </div>
                     </div>
                     <div style="margin-top:50px" class="card-body pt-0">
@@ -119,18 +114,23 @@ export default defineComponent({
             user: {} as User,
             chart1: {
                 series: [{
-                    name: "Uploadings",
-                    data: [0, 0, 0, 0, 0, 0, 0, 23, 23]
-                }],
-                colors: ["#8f93f6"],
+                    name: "Uploaded",
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                {
+                    name: "Downloaded",
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                }
+                ],
+                colors: ["#8f93f6", "#f68fbf"],
                 chart: {
                     toolbar: {
-                        show: false
+                        show: true
                     },
-                    height: 225,
+                    height: 325,
                     type: 'line',
                     zoom: {
-                        enabled: false
+                        enabled: true
                     }
                 },
                 dataLabels: {
@@ -150,7 +150,7 @@ export default defineComponent({
                     },
                 },
                 xaxis: {
-                    categories: ['Nov', 'Dec' ,'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', '*Curr'],
+                    categories: ['Novᅠ', 'Decᅠ' ,'Janᅠ', 'Febᅠ', 'Marᅠ', 'Aprᅠ', 'Mayᅠ', 'Junᅠ', 'ᅠ'],
                     labels: {
                         minHeight: 20,
                         maxHeight: 20
@@ -178,6 +178,11 @@ export default defineComponent({
     },
     async mounted() {
         await this.getUser()
+        this.chart1.series[0].data[7] = this.user.uploads;
+        this.chart1.series[0].data[8] = this.user.uploads;
+        this.chart1.series[1].data[7] = this.user.downloads;
+        this.chart1.series[1].data[8] = this.user.downloads;
+        this.chart1.series = this.chart1.series.slice();
     }
 })
 </script>
